@@ -1,6 +1,6 @@
 /* Header */
 .site-header {
-    background-color: #333;
+    background-color: #ffbbff;
     color: #fff;
     padding: 15px 0;
 }
@@ -14,7 +14,7 @@
 }
 
 .site-title a {
-    color: #fff;
+    color: #0000ff;
     text-decoration: none;
     font-size: 1.5em;
 }
@@ -29,7 +29,7 @@
 }
 
 .site-nav a {
-    color: #fff;
+    color: #0000ff;
     text-decoration: none;
 }
 
