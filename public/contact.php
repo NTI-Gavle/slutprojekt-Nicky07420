@@ -2,7 +2,7 @@
 $pageTitle = "Contact";
 require_once __DIR__ . '/../includes/header.php';
 
-// Initialize variables
+// Initialise variables
 $name = $email = $message = '';
 $errors = [];
 $success = false;
