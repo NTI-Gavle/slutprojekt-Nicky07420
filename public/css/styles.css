@@ -115,7 +115,6 @@ a:hover {
     transform: translateY(0);
 }
 
-/* GDPR */
 .gdpr-notice {
     text-align: center;
     font-size: 0.75rem;
@@ -143,4 +142,96 @@ a:hover {
 .site-footer a:hover {
     color: #c4b5fd;
     text-decoration: underline;
+}
+
+/* Feed cards  (compose box + individual posts) */
+.feed-card {
+    background-color: #1a1a2e;
+    border: 1px solid #2d1b5e;
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.12);
+    transition: box-shadow 0.25s ease;
+}
+
+.feed-card:hover {
+    box-shadow: 0 6px 28px rgba(124, 58, 237, 0.22);
+}
+
+/* Compose box */
+.compose-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #c4b5fd;
+    margin-bottom: 0.9rem;
+}
+
+.compose-textarea {
+    background-color: #0f0f1f;
+    border: 1.5px solid #3b1f7a;
+    color: #e8e8f0;
+    border-radius: 8px;
+    resize: vertical;
+}
+
+.compose-textarea:focus {
+    background-color: #0f0f1f;
+    border-color: #7c3aed;
+    color: #e8e8f0;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+}
+
+.compose-textarea::placeholder {
+    color: #4b5563;
+}
+
+.char-counter {
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+/* Post header */
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.post-username {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #a78bfa;
+}
+
+.post-time {
+    font-size: 0.75rem;
+    color: #4b5563;
+}
+
+/* Post body text */
+.post-content {
+    color: #e8e8f0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 0.5rem;
+}
+
+/* Delete button */
+.btn-delete {
+    background-color: transparent;
+    border: 1px solid #7f1d1d;
+    color: #f87171;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    padding: 0.2rem 0.7rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-delete:hover {
+    background-color: #7f1d1d;
+    color: #ffffff;
 }

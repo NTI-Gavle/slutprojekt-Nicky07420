@@ -1,10 +1,97 @@
 <?php
-$pageTitle = "Home"; // <-- set dynamic page title
+
+$pageTitle = 'Home';
 require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../database/post_queries.php';
+
+// Only logged-in users can see the feed
+requireLogin();
+
+$postError = '';
+$postSuccess = '';
+
+// Handle new post submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $content = trim(str_replace("\r\n", "\n", $_POST['content'] ?? '')); // Normalise newlines and trim whitespace
+
+    if (empty($content)) {
+        $postError = 'Post cannot be empty.';
+    } elseif (mb_strlen($content) > 500) {
+        $postError = 'Post cannot be longer than 500 characters. (How did you get this message)?';
+    } else {
+        if (createPost($dbconn, (int) $_SESSION['user_id'], $content)) {
+            // Redirect to avoid re-submitting the form on refresh (PRG pattern)
+            redirectTo('index.php');
+        } else {
+            $postError = 'Something went wrong. Please try again.';
+        }
+    }
+}
+
+// Fetch all posts
+$posts = getAllPosts($dbconn);
 ?>
 
-<h2>Suspiciously unsuspicious-looking questionably ordinary posting website</h2>
-<p>This is the homepage.</p>
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-7">
 
-<?php
-require_once __DIR__ . '/../includes/footer.php';   
+        <!-- Compose box -->
+        <div class="feed-card mb-4">
+            <h5 class="compose-title">What's on your mind?</h5>
+
+            <?php if ($postError): ?>
+                <div class="alert alert-danger py-2"><?= htmlspecialchars($postError) ?></div>
+            <?php endif; ?>
+
+            <form method="post" action="index.php">
+                <div class="mb-2">
+                    <textarea
+                        class="form-control compose-textarea"
+                        name="content"
+                        id="postContent"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Write something..."
+                    ><?= htmlspecialchars($_POST['content'] ?? '') ?></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="char-counter" id="charCounter">500 characters left</span>
+                    <button type="submit" class="btn btn-primary btn-sm px-4">Post</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Post feed -->
+        <?php if (empty($posts)): ?>
+            <p class="text-center text-muted mt-5">No posts yet. Be the first to post!</p>
+        <?php endif; ?>
+
+        <?php foreach ($posts as $post): ?>
+            <div class="feed-card mb-3">
+
+                <!-- Post header: username + timestamp -->
+                <div class="post-header mb-2">
+                    <span class="post-username">@<?= htmlspecialchars($post['username']) ?></span>
+                    <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+                </div>
+
+                <!-- Post content -->
+                <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
+
+                <!-- Delete button; only shown to the post's author -->
+                <?php if ((int) $post['user_id'] === (int) $_SESSION['user_id']): ?>
+                    <form method="post" action="delete_post.php"
+                          onsubmit="return confirm('Delete this post?')">
+                        <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+                        <button type="submit" class="btn btn-delete btn-sm">Delete</button>
+                    </form>
+                <?php endif; ?>
+
+            </div>
+        <?php endforeach; ?>
+
+    </div>
+</div>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
