@@ -222,16 +222,128 @@ a:hover {
 
 /* Delete button */
 .btn-delete {
-    background-color: transparent;
-    border: 1px solid #7f1d1d;
-    color: #f87171;
+    background-color: #dc3545;
+    border: 1px solid #dc3545;
+    color: #ffffff;
     font-size: 0.78rem;
     border-radius: 6px;
     padding: 0.2rem 0.7rem;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .btn-delete:hover {
-    background-color: #7f1d1d;
+    background-color: #b91c1c;
+    border-color: #b91c1c;
     color: #ffffff;
+}
+
+.btn-delete:disabled {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #ffffff;
+    opacity: 0.6;
+}
+/* Admin panel */
+.admin-page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ede9fe;
+}
+
+/* Stat cards */
+.stat-card {
+    background-color: #1a1a2e;
+    border: 1px solid #2d1b5e;
+    border-left: 4px solid #7c3aed;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.1);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9ca3af;
+    margin-bottom: 0.3rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ede9fe;
+    line-height: 1;
+}
+
+/* Section containers */
+.admin-section {
+    background-color: #1a1a2e;
+    border: 1px solid #2d1b5e;
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.1);
+}
+
+.admin-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #c4b5fd;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #2d1b5e;
+}
+
+/* Tables */
+.admin-table {
+    color: #e8e8f0;
+    margin-bottom: 0;
+}
+
+.admin-table thead th {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ede9fe;
+    background-color: transparent;
+    border-bottom: 1px solid #2d1b5e;
+    padding-bottom: 0.7rem;
+}
+
+.admin-table tbody tr {
+    border-bottom: 1px solid #1e1e3a;
+}
+
+.admin-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.admin-table tbody tr td {
+    background-color: #1a1a2e;
+    color: #e8e8f0;
+    border-color: #2d1b5e;
+}
+
+.admin-table tbody tr:hover td {
+    background-color: #1e1e3a;
+}
+
+.admin-table td {
+    vertical-align: middle;
+    padding: 0.65rem 0.5rem;
+    font-size: 0.88rem;
+}
+
+/* Override Bootstrap's text-muted inside admin tables */
+.admin-table .text-muted {
+    color: #e8e8f0 !important;
+}
+
+/* Truncate long post content in the table */
+.post-preview {
+    max-width: 320px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

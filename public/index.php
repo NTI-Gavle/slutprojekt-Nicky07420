@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch all posts
 $posts = getAllPosts($dbconn);
-?>
+?>  
 
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-7">

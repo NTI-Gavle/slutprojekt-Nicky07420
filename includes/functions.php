@@ -4,7 +4,7 @@
 function redirectTo(string $url): never
 {
     header('Location: ' . $url);
-    exit;
+    die;
 }
 
 // Check if the current visitor is logged in.
