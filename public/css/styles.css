@@ -185,6 +185,61 @@ a:hover {
     color: #4b5563;
 }
 
+.compose-file-input {
+    background-color: #0f0f1f;
+    border: 1.5px solid #3b1f7a;
+    color: #e8e8f0;
+    border-radius: 8px;
+}
+
+.compose-file-input:focus {
+    background-color: #0f0f1f;
+    border-color: #7c3aed;
+    color: #e8e8f0;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+}
+
+.compose-file-input::file-selector-button {
+    background-color: #7c3aed;
+    border: 1px solid #7c3aed;
+    color: #ffffff;
+    border-radius: 6px;
+    margin-right: 0.85rem;
+    padding: 0.35rem 0.85rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;}
+
+.compose-file-input::file-selector-button:hover {
+    background-color: #6d28d9;
+    border-color: #6d28d9;
+    transform: translateY(-1px);
+}
+
+/* Force file input button styling because Chrome is being a dumbahh*/
+.compose-file-input::file-selector-button,
+.compose-file-input::-webkit-file-upload-button {
+    background-color: #7c3aed !important;
+    border: 1px solid #7c3aed !important;
+    color: #ffffff !important;
+    border-radius: 6px;
+    margin-right: 0.85rem;
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+}
+
+/* Kill ALL state changes because Chrome is being a dumbahh */
+.compose-file-input::file-selector-button:hover,
+.compose-file-input::file-selector-button:active,
+.compose-file-input::file-selector-button:focus,
+.compose-file-input::-webkit-file-upload-button:hover,
+.compose-file-input::-webkit-file-upload-button:active,
+.compose-file-input::-webkit-file-upload-button:focus {
+    background-color: #7c3aed !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
+    outline: none;
+    box-shadow: none;
+}
+
 .char-counter {
     font-size: 0.78rem;
     color: #6b7280;
@@ -218,6 +273,14 @@ a:hover {
     white-space: pre-wrap;
     word-break: break-word;
     margin-bottom: 0.5rem;
+}
+
+.post-image {
+    display: block;
+    max-width: 100%;
+    max-height: 420px;
+    border-radius: 10px;
+    object-fit: cover;
 }
 
 /* Delete button */

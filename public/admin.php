@@ -24,11 +24,46 @@ $posts = $dbconn->query(
      JOIN users ON posts.user_id = users.id
      ORDER BY posts.created_at DESC'
 )->fetchAll();
+
+// Quick stats
+$totalUsers = count($users);
+$totalPosts = count($posts);
+$todayPosts = count(array_filter($posts, fn($p) => str_starts_with($p['created_at'], date('Y-m-d'))));
+$adminCount  = count(array_filter($users, fn($u) => $u['role'] === 'admin'));
 ?>
 
 <!-- Page header -->
 <div class="d-flex align-items-center gap-2 mb-4">
-    <h2 class="admin-page-title mb-0">Admin Panel rahhh</h2>
+    <h2 class="admin-page-title mb-0">Admin Panel</h2>
+    <span class="badge bg-danger">ADMIN</span>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total users</div>
+            <div class="stat-number"><?= $totalUsers ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Total posts</div>
+            <div class="stat-number"><?= $totalPosts ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Posts today</div>
+            <div class="stat-number"><?= $todayPosts ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Admins</div>
+            <div class="stat-number"><?= $adminCount ?></div>
+        </div>
+    </div>
 </div>
 
 <!-- Users table -->
@@ -64,9 +99,11 @@ $posts = $dbconn->query(
                     <td class="text-muted small"><?= htmlspecialchars($user['created_at']) ?></td>
                     <td>
                         <?php if ((int) $user['id'] !== (int) $_SESSION['user_id']): ?>
-                            <button class="btn btn-delete btn-sm">
-                                Delete
-                            </button>
+                            <form method="post" action="admin_delete_user.php"
+                                  onsubmit="return confirm('Delete @<?= htmlspecialchars($user['username'], ENT_QUOTES) ?> and all their posts?')">
+                                <input type="hidden" name="user_id" value="<?= (int) $user['id'] ?>">
+                                <button type="submit" class="btn btn-delete btn-sm">Delete</button>
+                            </form>
                         <?php else: ?>
                             <span class="text-muted small">You</span>
                         <?php endif; ?>
@@ -100,9 +137,11 @@ $posts = $dbconn->query(
                     <td class="post-preview"><?= htmlspecialchars($post['content']) ?></td>
                     <td class="text-muted small"><?= htmlspecialchars($post['created_at']) ?></td>
                     <td>
-                        <button class="btn btn-delete btn-sm">
-                            Delete
-                        </button>
+                        <form method="post" action="admin_delete_post.php"
+                              onsubmit="return confirm('Delete this post?')">
+                            <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+                            <button type="submit" class="btn btn-delete btn-sm">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 <?php endforeach; ?>

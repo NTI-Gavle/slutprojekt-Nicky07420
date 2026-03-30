@@ -3,15 +3,16 @@
 require_once __DIR__ . '/db.php';
 
 // Insert a new post into the database.
-function createPost(PDO $dbconn, int $userId, string $content): bool
+function createPost(PDO $dbconn, int $userId, string $content, ?string $imagePath = null): bool
 {
     $stmt = $dbconn->prepare(
-        'INSERT INTO posts (user_id, content) VALUES (:user_id, :content)'
+        'INSERT INTO posts (user_id, content, image_path) VALUES (:user_id, :content, :image_path)'
     );
 
     return $stmt->execute([
-        ':user_id' => $userId,
-        ':content' => $content,
+        ':user_id'    => $userId,
+        ':content'    => $content,
+        ':image_path' => $imagePath,
     ]);
 }
 
@@ -28,8 +29,6 @@ function getAllPosts(PDO $dbconn): array
     return $stmt->fetchAll();
 }
 
-/* Delete a post by ID; but only if it belongs to the given user.
-This ownership check prevents users from deleting each other's posts. */
 function deleteOwnPost(PDO $dbconn, int $postId, int $userId): bool
 {
     $stmt = $dbconn->prepare(

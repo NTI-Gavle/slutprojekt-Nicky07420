@@ -12,15 +12,51 @@ $postSuccess = '';
 
 // Handle new post submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $content = trim(str_replace("\r\n", "\n", $_POST['content'] ?? '')); // Normalise newlines and trim whitespace
+    $imagePath = null;
+    $hasUpload = isset($_FILES['image']) && (int) ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
 
-    if (empty($content)) {
+    if ($hasUpload) {
+        $image = $_FILES['image'];
+        $allowedMimeTypes = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            'image/webp' => 'webp',
+        ];
+
+        if ((int) $image['error'] !== UPLOAD_ERR_OK) {
+            $postError = 'Image upload failed. Please try again.';
+        } else {
+            $mimeType = mime_content_type($image['tmp_name']) ?: '';
+
+            if (!isset($allowedMimeTypes[$mimeType])) {
+                $postError = 'Only JPG, PNG, GIF, and WebP images are allowed.';
+            } else {
+                $uploadDirectory = __DIR__ . '/uploads/posts';
+
+                if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0777, true) && !is_dir($uploadDirectory)) {
+                    $postError = 'Could not save the uploaded image.';
+                } else {
+                    $filename = uniqid('post_', true) . '.' . $allowedMimeTypes[$mimeType];
+                    $destination = $uploadDirectory . '/' . $filename;
+
+                    if (!move_uploaded_file($image['tmp_name'], $destination)) {
+                        $postError = 'Could not save the uploaded image.';
+                    } else {
+                        $imagePath = 'uploads/posts/' . $filename;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!$postError && $content === '' && $imagePath === null) {
         $postError = 'Post cannot be empty.';
-    } elseif (mb_strlen($content) > 500) {
+    } elseif (!$postError && mb_strlen($content) > 500) {
         $postError = 'Post cannot be longer than 500 characters. (How did you get this message)?';
-    } else {
-        if (createPost($dbconn, (int) $_SESSION['user_id'], $content)) {
+    } elseif (!$postError) {
+        if (createPost($dbconn, (int) $_SESSION['user_id'], $content, $imagePath)) {
             // Redirect to avoid re-submitting the form on refresh (PRG pattern)
             redirectTo('index.php');
         } else {
@@ -44,7 +80,7 @@ $posts = getAllPosts($dbconn);
                 <div class="alert alert-danger py-2"><?= htmlspecialchars($postError) ?></div>
             <?php endif; ?>
 
-            <form method="post" action="index.php">
+            <form method="post" action="index.php" enctype="multipart/form-data">
                 <div class="mb-2">
                     <textarea
                         class="form-control compose-textarea"
@@ -54,6 +90,9 @@ $posts = getAllPosts($dbconn);
                         maxlength="500"
                         placeholder="Write something..."
                     ><?= htmlspecialchars($_POST['content'] ?? '') ?></textarea>
+                </div>
+                <div class="mb-3">
+                    <input class="form-control form-control-sm compose-file-input" type="file" name="image" accept="image/*">
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="char-counter" id="charCounter">500 characters left</span>
@@ -76,8 +115,17 @@ $posts = getAllPosts($dbconn);
                     <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
                 </div>
 
-                <!-- Post content -->
-                <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
+                <?php if ($post['content'] !== ''): ?>
+                    <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
+                <?php endif; ?>
+
+                <?php if (!empty($post['image_path'])): ?>
+                    <img
+                        src="<?= htmlspecialchars($post['image_path']) ?>"
+                        alt="Post image"
+                        class="post-image mb-2"
+                    >
+                <?php endif; ?>
 
                 <!-- Delete button; only shown to the post's author -->
                 <?php if ((int) $post['user_id'] === (int) $_SESSION['user_id']): ?>
