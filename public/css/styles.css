@@ -313,32 +313,6 @@ a:hover {
     color: #ede9fe;
 }
 
-/* Stat cards */
-.stat-card {
-    background-color: #1a1a2e;
-    border: 1px solid #2d1b5e;
-    border-left: 4px solid #7c3aed;
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.1);
-}
-
-.stat-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #9ca3af;
-    margin-bottom: 0.3rem;
-}
-
-.stat-number {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #ede9fe;
-    line-height: 1;
-}
-
 /* Section containers */
 .admin-section {
     background-color: #1a1a2e;

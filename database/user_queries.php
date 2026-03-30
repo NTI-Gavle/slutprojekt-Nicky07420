@@ -44,3 +44,19 @@ function checkUserExists(PDO $dbconn, string $username, string $email): array
 
     return $taken;
 }
+
+function getUserPostImagePaths(PDO $dbconn, int $userId): array
+{
+    $stmt = $dbconn->prepare('SELECT image_path FROM posts WHERE user_id = :user_id AND image_path IS NOT NULL');
+    $stmt->execute([':user_id' => $userId]);
+
+    return array_column($stmt->fetchAll(), 'image_path');
+}
+
+function deleteUserById(PDO $dbconn, int $userId): bool
+{
+    $stmt = $dbconn->prepare('DELETE FROM users WHERE id = :id');
+    $stmt->execute([':id' => $userId]);
+
+    return $stmt->rowCount() > 0;
+}

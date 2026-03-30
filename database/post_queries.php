@@ -43,3 +43,20 @@ function deleteOwnPost(PDO $dbconn, int $postId, int $userId): bool
     // rowCount() tells us whether a row was actually deleted
     return $stmt->rowCount() > 0;
 }
+
+function getPostImagePath(PDO $dbconn, int $postId): ?string
+{
+    $stmt = $dbconn->prepare('SELECT image_path FROM posts WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $postId]);
+    $imagePath = $stmt->fetchColumn();
+
+    return $imagePath !== false ? $imagePath : null;
+}
+
+function deletePostById(PDO $dbconn, int $postId): bool
+{
+    $stmt = $dbconn->prepare('DELETE FROM posts WHERE id = :id');
+    $stmt->execute([':id' => $postId]);
+
+    return $stmt->rowCount() > 0;
+}

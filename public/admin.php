@@ -38,34 +38,6 @@ $adminCount  = count(array_filter($users, fn($u) => $u['role'] === 'admin'));
     <span class="badge bg-danger">ADMIN</span>
 </div>
 
-<!-- Stat cards -->
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-label">Total users</div>
-            <div class="stat-number"><?= $totalUsers ?></div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-label">Total posts</div>
-            <div class="stat-number"><?= $totalPosts ?></div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-label">Posts today</div>
-            <div class="stat-number"><?= $todayPosts ?></div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-label">Admins</div>
-            <div class="stat-number"><?= $adminCount ?></div>
-        </div>
-    </div>
-</div>
-
 <!-- Users table -->
 <div class="admin-section mb-4">
     <h5 class="admin-section-title">Users</h5>
