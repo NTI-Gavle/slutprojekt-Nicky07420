@@ -11,7 +11,7 @@ $formData = ['username' => '', 'email' => ''];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $username  = trim($_POST['username']  ?? '');
-    $email     = trim($_POST['email']     ?? '');
+    $email     = normalizeEmail($_POST['email'] ?? '');
     $password  = $_POST['password']       ?? '';
     $password2 = $_POST['password2']      ?? '';
 
