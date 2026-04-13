@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch all posts
-$posts = getAllPosts($dbconn);
+$posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
 ?>  
 
 <div class="row justify-content-center">
@@ -126,6 +126,26 @@ $posts = getAllPosts($dbconn);
                         class="post-image mb-2"
                     >
                 <?php endif; ?>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <form method="post" action="like_post.php" class="js-like-form">
+                        <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+                        <input
+                            type="hidden"
+                            class="js-like-action"
+                            name="action"
+                            value="<?= (int) $post['is_liked_by_current_user'] === 1 ? 'unlike' : 'like' ?>"
+                        >
+                        <button
+                            type="submit"
+                            class="btn btn-sm btn-heart <?= (int) $post['is_liked_by_current_user'] === 1 ? 'is-liked' : '' ?>"
+                            aria-label="<?= (int) $post['is_liked_by_current_user'] === 1 ? 'Unlike post' : 'Like post' ?>"
+                        >
+                            <?= (int) $post['is_liked_by_current_user'] === 1 ? '&#10084;' : '&#9825;' ?>
+                        </button>
+                    </form>
+                    <small class="text-muted js-like-count"><?= (int) $post['like_count'] ?> like<?= (int) $post['like_count'] === 1 ? '' : 's' ?></small>
+                </div>
 
                 <!-- Delete button; only shown to the post's author -->
                 <?php if ((int) $post['user_id'] === (int) $_SESSION['user_id']): ?>

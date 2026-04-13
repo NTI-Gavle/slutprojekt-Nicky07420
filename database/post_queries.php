@@ -16,15 +16,22 @@ function createPost(PDO $dbconn, int $userId, string $content, ?string $imagePat
     ]);
 }
 
-// Fetch all posts ordered newest first, including the username of each author.
-function getAllPosts(PDO $dbconn): array
+// Fetch all posts ordered newest first, including username + like metadata.
+function getAllPosts(PDO $dbconn, int $currentUserId): array
 {
-    $stmt = $dbconn->query(
-        'SELECT posts.*, users.username
+    $stmt = $dbconn->prepare(
+        'SELECT posts.*, users.username,
+                (SELECT COUNT(*) FROM post_likes WHERE post_id = posts.id) AS like_count,
+                EXISTS(
+                    SELECT 1
+                    FROM post_likes
+                    WHERE post_id = posts.id AND user_id = :current_user_id
+                ) AS is_liked_by_current_user
          FROM posts
          JOIN users ON posts.user_id = users.id
          ORDER BY posts.created_at DESC'
     );
+    $stmt->execute([':current_user_id' => $currentUserId]);
 
     return $stmt->fetchAll();
 }
@@ -40,7 +47,7 @@ function deleteOwnPost(PDO $dbconn, int $postId, int $userId): bool
         ':user_id' => $userId,
     ]);
 
-    // rowCount() tells us whether a row was actually deleted
+    // rowCount() tells whether a row was actually deleted
     return $stmt->rowCount() > 0;
 }
 
@@ -59,4 +66,36 @@ function deletePostById(PDO $dbconn, int $postId): bool
     $stmt->execute([':id' => $postId]);
 
     return $stmt->rowCount() > 0;
+}
+
+function likePost(PDO $dbconn, int $postId, int $userId): bool
+{
+    $stmt = $dbconn->prepare(
+        'INSERT IGNORE INTO post_likes (post_id, user_id) VALUES (:post_id, :user_id)'
+    );
+
+    return $stmt->execute([
+        ':post_id' => $postId,
+        ':user_id' => $userId,
+    ]);
+}
+
+function unlikePost(PDO $dbconn, int $postId, int $userId): bool
+{
+    $stmt = $dbconn->prepare(
+        'DELETE FROM post_likes WHERE post_id = :post_id AND user_id = :user_id'
+    );
+
+    return $stmt->execute([
+        ':post_id' => $postId,
+        ':user_id' => $userId,
+    ]);
+}
+
+function getPostLikeCount(PDO $dbconn, int $postId): int
+{
+    $stmt = $dbconn->prepare('SELECT COUNT(*) FROM post_likes WHERE post_id = :post_id');
+    $stmt->execute([':post_id' => $postId]);
+
+    return (int) $stmt->fetchColumn();
 }

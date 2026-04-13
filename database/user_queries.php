@@ -30,8 +30,7 @@ function getUserByUsername(PDO $dbconn, string $username): array|false
     return $stmt->fetch();
 }
 
-/* Insert a new user into the database.
-The password is hashed with bcrypt before being stored. */
+// Insert a new user into the database with hashed password.
 function createUser(PDO $dbconn, string $username, string $email, string $password): bool
 {
     $passwordHash = password_hash($password, PASSWORD_BCRYPT);
