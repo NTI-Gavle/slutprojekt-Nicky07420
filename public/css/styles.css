@@ -1,4 +1,3 @@
-/* Global */
 body {
     background-color: #000000;
     color: #ffffff;
@@ -323,6 +322,12 @@ a:hover {
 
 .btn-heart.is-liked {
     color: #dc2626;
+}
+
+.like-counter {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 /* Admin panel */
 .admin-page-title {

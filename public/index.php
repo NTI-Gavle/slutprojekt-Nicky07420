@@ -144,7 +144,9 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                             <?= (int) $post['is_liked_by_current_user'] === 1 ? '&#10084;' : '&#9825;' ?>
                         </button>
                     </form>
-                    <small class="text-muted js-like-count"><?= (int) $post['like_count'] ?> like<?= (int) $post['like_count'] === 1 ? '' : 's' ?></small>
+                    <span class="like-counter" aria-label="Like count">
+                        <?= (int) $post['like_count'] ?> like<?= (int) $post['like_count'] === 1 ? '' : 's' ?>
+                    </span>
                 </div>
 
                 <!-- Delete button; only shown to the post's author -->
