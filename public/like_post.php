@@ -1,6 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../includes/header.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../database/post_queries.php';
 
 requireLogin();
@@ -13,8 +17,13 @@ $postId = (int) ($_POST['post_id'] ?? 0);
 $action = $_POST['action'] ?? '';
 $userId = (int) $_SESSION['user_id'];
 
+// Saves scroll position to return to after liking/unliking a post
+$returnTo = $_POST['return_to'] ?? '';
+$returnFragment = preg_match('/^post-\d+$/', $returnTo) ? '#' . $returnTo : '';
+$redirectUrl = 'index.php' . $returnFragment;
+
 if ($postId <= 0) {
-    redirectTo('index.php');
+    redirectTo($redirectUrl);
 }
 
 if ($action === 'unlike') {
@@ -23,4 +32,4 @@ if ($action === 'unlike') {
     likePost($dbconn, $postId, $userId);
 }
 
-redirectTo('index.php');
+redirectTo($redirectUrl);

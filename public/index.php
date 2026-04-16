@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $postError = 'Post cannot be longer than 500 characters. (How did you get this message)?';
     } elseif (!$postError) {
         if (createPost($dbconn, (int) $_SESSION['user_id'], $content, $imagePath)) {
-            // Redirect to avoid re-submitting the form on refresh (PRG pattern)
             redirectTo('index.php');
         } else {
             $postError = 'Something went wrong. Please try again.';
@@ -107,7 +106,7 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
         <?php endif; ?>
 
         <?php foreach ($posts as $post): ?>
-            <div class="feed-card mb-3">
+            <div class="feed-card mb-3" id="post-<?= (int) $post['id'] ?>">
 
                 <!-- Post header: username + timestamp -->
                 <div class="post-header mb-2">
@@ -130,6 +129,7 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <form method="post" action="like_post.php" class="js-like-form">
                         <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+                        <input type="hidden" name="return_to" value="post-<?= (int) $post['id'] ?>">
                         <input
                             type="hidden"
                             class="js-like-action"
