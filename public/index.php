@@ -57,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $postError = 'Post cannot be longer than 500 characters. (How did you get this message)?';
     } elseif (!$postError) {
         if (createPost($dbconn, (int) $_SESSION['user_id'], $content, $imagePath)) {
+            // Redirect to avoid re-submitting the form on refresh (PRG pattern)
             redirectTo('index.php');
         } else {
             $postError = 'Something went wrong. Please try again.';
@@ -108,23 +109,25 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
         <?php foreach ($posts as $post): ?>
             <div class="feed-card mb-3" id="post-<?= (int) $post['id'] ?>">
 
-                <!-- Post header: username + timestamp -->
-                <div class="post-header mb-2">
-                    <span class="post-username">@<?= htmlspecialchars($post['username']) ?></span>
-                    <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
-                </div>
+                <a href="post.php?id=<?= (int) $post['id'] ?>" class="post-card-link">
+                    <!-- Post header: username + timestamp -->
+                    <div class="post-header mb-2">
+                        <span class="post-username">@<?= htmlspecialchars($post['username']) ?></span>
+                        <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+                    </div>
 
-                <?php if ($post['content'] !== ''): ?>
-                    <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
-                <?php endif; ?>
+                    <?php if ($post['content'] !== ''): ?>
+                        <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
+                    <?php endif; ?>
 
-                <?php if (!empty($post['image_path'])): ?>
-                    <img
-                        src="<?= htmlspecialchars($post['image_path']) ?>"
-                        alt="Post image"
-                        class="post-image mb-2"
-                    >
-                <?php endif; ?>
+                    <?php if (!empty($post['image_path'])): ?>
+                        <img
+                            src="<?= htmlspecialchars($post['image_path']) ?>"
+                            alt="Post image"
+                            class="post-image mb-2"
+                        >
+                    <?php endif; ?>
+                </a>
 
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <form method="post" action="like_post.php" class="js-like-form">

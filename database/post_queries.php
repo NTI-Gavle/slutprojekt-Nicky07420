@@ -99,3 +99,47 @@ function getPostLikeCount(PDO $dbconn, int $postId): int
 
     return (int) $stmt->fetchColumn();
 }
+
+function getPostById(PDO $dbconn, int $postId): ?array
+{
+    $stmt = $dbconn->prepare(
+        'SELECT posts.*, users.username
+         FROM posts
+         JOIN users ON posts.user_id = users.id
+         WHERE posts.id = :post_id
+         LIMIT 1'
+    );
+
+    $stmt->execute([':post_id' => $postId]);
+    $post = $stmt->fetch();
+
+    return $post !== false ? $post : null;
+}
+
+function createComment(PDO $dbconn, int $postId, int $userId, string $content): bool
+{
+    $stmt = $dbconn->prepare(
+        'INSERT INTO comments (post_id, user_id, content) VALUES (:post_id, :user_id, :content)'
+    );
+
+    return $stmt->execute([
+        ':post_id' => $postId,
+        ':user_id' => $userId,
+        ':content' => $content,
+    ]);
+}
+
+function getCommentsByPostId(PDO $dbconn, int $postId): array
+{
+    $stmt = $dbconn->prepare(
+        'SELECT comments.*, users.username
+         FROM comments
+         JOIN users ON comments.user_id = users.id
+         WHERE comments.post_id = :post_id
+         ORDER BY comments.created_at ASC'
+    );
+
+    $stmt->execute([':post_id' => $postId]);
+
+    return $stmt->fetchAll();
+}
