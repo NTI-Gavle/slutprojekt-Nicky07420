@@ -107,27 +107,44 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
         <?php endif; ?>
 
         <?php foreach ($posts as $post): ?>
+            <?php
+            $postProfilePicture = resolvePublicAssetPath($post['profile_picture'] ?? null);
+            $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
+            ?>
             <div class="feed-card mb-3" id="post-<?= (int) $post['id'] ?>">
-
-                <a href="post.php?id=<?= (int) $post['id'] ?>" class="post-card-link">
-                    <!-- Post header: username + timestamp -->
-                    <div class="post-header mb-2">
-                        <span class="post-username">@<?= htmlspecialchars($post['username']) ?></span>
-                        <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
-                    </div>
-
-                    <?php if ($post['content'] !== ''): ?>
-                        <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
-                    <?php endif; ?>
-
-                    <?php if (!empty($post['image_path'])): ?>
+                <div class="d-flex align-items-start gap-3 mb-2">
+                    <?php if (!empty($postProfilePicture)): ?>
                         <img
-                            src="<?= htmlspecialchars($post['image_path']) ?>"
-                            alt="Post image"
-                            class="post-image mb-2"
+                            src="<?= htmlspecialchars($postProfilePicture) ?>"
+                            alt="<?= htmlspecialchars($post['username']) ?> profile picture"
+                            class="profile-avatar post-avatar"
                         >
+                    <?php else: ?>
+                        <div class="profile-avatar post-avatar profile-avatar-fallback">
+                            <?= htmlspecialchars(getUserInitial($post['username'])) ?>
+                        </div>
                     <?php endif; ?>
-                </a>
+
+                    <a href="post.php?id=<?= (int) $post['id'] ?>" class="post-card-link flex-grow-1">
+                        <!-- Post header: username + timestamp -->
+                        <div class="post-header mb-2">
+                            <span class="post-username">@<?= htmlspecialchars($post['username']) ?></span>
+                            <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+                        </div>
+
+                        <?php if ($post['content'] !== ''): ?>
+                            <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
+                        <?php endif; ?>
+
+                        <?php if (!empty($postImagePath)): ?>
+                            <img
+                                src="<?= htmlspecialchars($postImagePath) ?>"
+                                alt="Post image"
+                                class="post-image mb-2"
+                            >
+                        <?php endif; ?>
+                    </a>
+                </div>
 
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <form method="post" action="like_post.php" class="js-like-form">

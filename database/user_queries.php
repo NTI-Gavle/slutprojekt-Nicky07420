@@ -30,6 +30,14 @@ function getUserByUsername(PDO $dbconn, string $username): array|false
     return $stmt->fetch();
 }
 
+function getUserById(PDO $dbconn, int $userId): array|false
+{
+    $stmt = $dbconn->prepare('SELECT * FROM users WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $userId]);
+
+    return $stmt->fetch();
+}
+
 // Insert a new user into the database with hashed password.
 function createUser(PDO $dbconn, string $username, string $email, string $password): bool
 {
@@ -80,4 +88,40 @@ function deleteUserById(PDO $dbconn, int $userId): bool
     $stmt->execute([':id' => $userId]);
 
     return $stmt->rowCount() > 0;
+}
+
+function updateUserProfile(PDO $dbconn, int $userId, string $bio, ?string $profilePicture = null): bool
+{
+    if ($profilePicture === null) {
+        $stmt = $dbconn->prepare('UPDATE users SET bio = :bio WHERE id = :id');
+
+        return $stmt->execute([
+            ':bio' => $bio !== '' ? $bio : null,
+            ':id'  => $userId,
+        ]);
+    }
+
+    $stmt = $dbconn->prepare(
+        'UPDATE users SET bio = :bio, profile_picture = :profile_picture WHERE id = :id'
+    );
+
+    return $stmt->execute([
+        ':bio'             => $bio !== '' ? $bio : null,
+        ':profile_picture' => $profilePicture,
+        ':id'              => $userId,
+    ]);
+}
+
+function searchUsersByUsername(PDO $dbconn, string $query): array
+{
+    $stmt = $dbconn->prepare(
+        'SELECT id, username, bio, profile_picture
+         FROM users
+         WHERE username LIKE :query
+         ORDER BY username ASC
+         LIMIT 20'
+    );
+    $stmt->execute([':query' => '%' . $query . '%']);
+
+    return $stmt->fetchAll();
 }

@@ -16,8 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $postId = (int) ($_POST['post_id'] ?? 0);
 $action = $_POST['action'] ?? '';
 $userId = (int) $_SESSION['user_id'];
-
-// Saves scroll position to return to after liking/unliking a post
 $returnTo = $_POST['return_to'] ?? '';
 $returnFragment = preg_match('/^post-\d+$/', $returnTo) ? '#' . $returnTo : '';
 $redirectUrl = 'index.php' . $returnFragment;

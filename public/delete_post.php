@@ -18,7 +18,7 @@ if ($postId <= 0) {
 }
 
 // deleteOwnPost checks ownership inside the query, so another user
-// can't delete someone else's post even by crafting a POST request.
+// Can't delete someone else's post even by crafting a POST request.
 deleteOwnPost($dbconn, $postId, (int) $_SESSION['user_id']);
 
 redirectTo('index.php');

@@ -20,7 +20,7 @@ function createPost(PDO $dbconn, int $userId, string $content, ?string $imagePat
 function getAllPosts(PDO $dbconn, int $currentUserId): array
 {
     $stmt = $dbconn->prepare(
-        'SELECT posts.*, users.username,
+        'SELECT posts.*, users.username, users.profile_picture,
                 (SELECT COUNT(*) FROM post_likes WHERE post_id = posts.id) AS like_count,
                 EXISTS(
                     SELECT 1
@@ -103,7 +103,7 @@ function getPostLikeCount(PDO $dbconn, int $postId): int
 function getPostById(PDO $dbconn, int $postId): ?array
 {
     $stmt = $dbconn->prepare(
-        'SELECT posts.*, users.username
+        'SELECT posts.*, users.username, users.profile_picture
          FROM posts
          JOIN users ON posts.user_id = users.id
          WHERE posts.id = :post_id
@@ -132,7 +132,7 @@ function createComment(PDO $dbconn, int $postId, int $userId, string $content): 
 function getCommentsByPostId(PDO $dbconn, int $postId): array
 {
     $stmt = $dbconn->prepare(
-        'SELECT comments.*, users.username
+        'SELECT comments.*, users.username, users.profile_picture
          FROM comments
          JOIN users ON comments.user_id = users.id
          WHERE comments.post_id = :post_id

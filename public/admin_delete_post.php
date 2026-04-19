@@ -22,9 +22,9 @@ if ($postId <= 0) {
 $imagePath = getPostImagePath($dbconn, $postId);
 
 if (deletePostById($dbconn, $postId) && $imagePath) {
-    $absoluteImagePath = __DIR__ . '/' . ltrim($imagePath, '/');
+    $absoluteImagePath = resolveStoredAssetFilesystemPath($imagePath);
 
-    if (is_file($absoluteImagePath)) {
+    if ($absoluteImagePath && is_file($absoluteImagePath)) {
         unlink($absoluteImagePath);
     }
 }

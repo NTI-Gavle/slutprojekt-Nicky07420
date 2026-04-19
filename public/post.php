@@ -6,6 +6,14 @@ require_once __DIR__ . '/../database/post_queries.php';
 
 requireLogin();
 
+if (!function_exists('getUserInitial')) {
+    function getUserInitial(string $username): string
+    {
+        $username = trim($username);
+        return $username === '' ? '?' : mb_strtoupper(mb_substr($username, 0, 1));
+    }
+}
+
 $postId = (int) ($_GET['id'] ?? 0);
 
 if ($postId <= 0) {
@@ -37,6 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $comments = getCommentsByPostId($dbconn, $postId);
+$postProfilePicture = resolvePublicAssetPath($post['profile_picture'] ?? null);
+$postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
 ?>
 
 <div class="row justify-content-center">
@@ -44,18 +54,36 @@ $comments = getCommentsByPostId($dbconn, $postId);
         <a href="index.php" class="small text-decoration-none">&larr; Back to feed</a>
 
         <div class="feed-card mt-2 mb-4">
-            <div class="post-header mb-2">
-                <span class="post-username">@<?= htmlspecialchars($post['username']) ?></span>
-                <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <?php if (!empty($postProfilePicture)): ?>
+                    <img
+                        src="<?= htmlspecialchars($postProfilePicture) ?>"
+                        alt="<?= htmlspecialchars($post['username']) ?> profile picture"
+                        class="profile-avatar"
+                    >
+                <?php else: ?>
+                    <div class="profile-avatar profile-avatar-fallback">
+                        <?= htmlspecialchars(getUserInitial($post['username'])) ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="flex-grow-1">
+                    <div class="post-header mb-1">
+                        <a class="post-username profile-link" href="profile.php?user=<?= urlencode($post['username']) ?>">
+                            @<?= htmlspecialchars($post['username']) ?>
+                        </a>
+                        <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+                    </div>
+                </div>
             </div>
 
             <?php if ($post['content'] !== ''): ?>
                 <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
             <?php endif; ?>
 
-            <?php if (!empty($post['image_path'])): ?>
+            <?php if (!empty($postImagePath)): ?>
                 <img
-                    src="<?= htmlspecialchars($post['image_path']) ?>"
+                    src="<?= htmlspecialchars($postImagePath) ?>"
                     alt="Post image"
                     class="post-image"
                 >
@@ -88,16 +116,35 @@ $comments = getCommentsByPostId($dbconn, $postId);
         <div class="feed-card mb-3">
             <h6 class="compose-title mb-3">Comments (<?= count($comments) ?>)</h6>
 
-            <?php if (empty($comments)): ?>
+                <?php if (empty($comments)): ?>
                 <p class="text-muted mb-0">No comments yet.</p>
             <?php else: ?>
                 <?php foreach ($comments as $comment): ?>
+                    <?php $commentProfilePicture = resolvePublicAssetPath($comment['profile_picture'] ?? null); ?>
                     <div class="comment-item">
-                        <div class="post-header mb-1">
-                            <span class="post-username">@<?= htmlspecialchars($comment['username']) ?></span>
-                            <span class="post-time"><?= htmlspecialchars($comment['created_at']) ?></span>
+                        <div class="d-flex align-items-start gap-3">
+                            <?php if (!empty($commentProfilePicture)): ?>
+                                <img
+                                    src="<?= htmlspecialchars($commentProfilePicture) ?>"
+                                    alt="<?= htmlspecialchars($comment['username']) ?> profile picture"
+                                    class="comment-avatar"
+                                >
+                            <?php else: ?>
+                                <div class="comment-avatar profile-avatar-fallback">
+                                    <?= htmlspecialchars(getUserInitial($comment['username'])) ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="flex-grow-1">
+                                <div class="post-header mb-1">
+                                    <a class="post-username profile-link" href="profile.php?user=<?= urlencode($comment['username']) ?>">
+                                        @<?= htmlspecialchars($comment['username']) ?>
+                                    </a>
+                                    <span class="post-time"><?= htmlspecialchars($comment['created_at']) ?></span>
+                                </div>
+                                <p class="post-content mb-0"><?= htmlspecialchars($comment['content']) ?></p>
+                            </div>
                         </div>
-                        <p class="post-content mb-0"><?= htmlspecialchars($comment['content']) ?></p>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
