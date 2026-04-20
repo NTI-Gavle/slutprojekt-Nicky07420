@@ -71,7 +71,6 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-7">
 
-        <!-- Compose box -->
         <div class="feed-card mb-4">
             <h5 class="compose-title">What's on your mind?</h5>
 
@@ -145,7 +144,7 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                     </a>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="post-engagement d-flex align-items-center gap-2 mb-2">
                     <form method="post" action="like_post.php" class="js-like-form">
                         <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
                         <input type="hidden" name="return_to" value="post-<?= (int) $post['id'] ?>">
@@ -166,6 +165,13 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                     <span class="like-counter" aria-label="Like count">
                         <?= (int) $post['like_count'] ?> like<?= (int) $post['like_count'] === 1 ? '' : 's' ?>
                     </span>
+                    <a
+                        href="post.php?id=<?= (int) $post['id'] ?>#comments"
+                        class="comment-counter text-decoration-none"
+                        aria-label="Comment count"
+                    >
+                        <?= (int) $post['comment_count'] ?> comment<?= (int) $post['comment_count'] === 1 ? '' : 's' ?>
+                    </a>
                 </div>
 
                 <!-- Delete button; only shown to the post's author -->
