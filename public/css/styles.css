@@ -25,6 +25,7 @@ a:hover {
     font-size: 1.4rem;
     letter-spacing: 1px;
     color: #c4b5fd !important;
+    line-height: 1.15;
 }
 
 /* Main content area */
@@ -69,28 +70,32 @@ a:hover {
 }
 
 /* Form controls  (override Bootstrap inside auth-card) */
-.auth-card .form-label {
+.auth-card .form-label,
+.contact-form .form-label {
     color: #c4b5fd;
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 0.3rem;
 }
 
-.auth-card .form-control {
+.auth-card .form-control,
+.contact-form .form-control {
     background-color: #0f0f1f;
     border: 1.5px solid #3b1f7a;
     color: #e8e8f0;
     border-radius: 8px;
 }
 
-.auth-card .form-control:focus {
+.auth-card .form-control:focus,
+.contact-form .form-control:focus {
     background-color: #0f0f1f;
     border-color: #7c3aed;
     color: #e8e8f0;
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
 }
 
-.auth-card .form-control::placeholder {
+.auth-card .form-control::placeholder,
+.contact-form .form-control::placeholder {
     color: #4b5563;
 }
 
@@ -510,7 +515,6 @@ a:hover {
     font-size: 0.88rem;
 }
 
-/* Override Bootstrap's text-muted inside admin tables */
 .admin-table .text-muted {
     color: #e8e8f0 !important;
 }
@@ -521,4 +525,255 @@ a:hover {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Shared page sections */
+.page-eyebrow {
+    display: inline-block;
+    color: #a78bfa;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.page-heading {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #ede9fe;
+    line-height: 1.15;
+}
+
+.page-copy {
+    color: #e8e8f0;
+    font-size: 0.98rem;
+    line-height: 1.65;
+}
+
+.contact-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.contact-form textarea.form-control {
+    min-height: 180px;
+    resize: vertical;
+}
+
+.profile-search-form {
+    width: 100%;
+}
+
+.profile-search-form .form-control {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.profile-search-card,
+.profile-summary,
+.post-card-body,
+.post-summary,
+.comment-row {
+    min-width: 0;
+}
+
+.profile-search-card > .flex-grow-1,
+.profile-summary > .flex-grow-1,
+.post-card-body > .flex-grow-1,
+.post-summary > .flex-grow-1,
+.comment-row > .flex-grow-1 {
+    min-width: 0;
+}
+
+.profile-edit-actions {
+    width: 100%;
+}
+
+/* Reponsiveness */
+@media (max-width: 991.98px) {
+    .feed-card,
+    .auth-card,
+    .admin-section {
+        padding: 1.25rem 1.35rem;
+    }
+
+    .profile-avatar-lg {
+        width: 84px;
+        height: 84px;
+    }
+
+    .post-image {
+        max-height: 360px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .main-content {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+    .navbar-brand {
+        font-size: 1.05rem;
+        max-width: calc(100vw - 4.5rem);
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .feed-card,
+    .auth-card,
+    .admin-section {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .auth-card {
+        margin-top: 1rem;
+    }
+
+    .page-heading {
+        font-size: 1.55rem;
+    }
+
+    .page-copy {
+        font-size: 0.95rem;
+    }
+
+    .profile-search-form,
+    .compose-actions,
+    .profile-search-card,
+    .profile-summary,
+    .post-card-body,
+    .post-summary,
+    .comment-row {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+
+    .compose-actions {
+        justify-content: flex-start !important;
+    }
+
+    .profile-search-form .btn,
+    .compose-actions .btn,
+    .profile-edit-actions .btn {
+        width: 100%;
+    }
+
+    .compose-actions .char-counter {
+        width: 100%;
+        text-align: left;
+    }
+
+    .profile-edit-actions {
+        text-align: left !important;
+    }
+
+    .navbar-nav .btn {
+        width: 100%;
+    }
+
+    .profile-search-card .flex-grow-1,
+    .profile-summary .flex-grow-1,
+    .post-card-body .flex-grow-1,
+    .post-summary .flex-grow-1,
+    .comment-row .flex-grow-1 {
+        width: 100%;
+    }
+
+    .profile-avatar,
+    .comment-avatar {
+        width: 48px;
+        height: 48px;
+    }
+
+    .post-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .profile-avatar-lg {
+        width: 72px;
+        height: 72px;
+    }
+
+    .post-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .post-time {
+        font-size: 0.72rem;
+    }
+
+    .post-content,
+    .profile-search-bio,
+    .profile-bio {
+        font-size: 0.92rem;
+    }
+
+    .post-image {
+        max-height: 300px;
+    }
+
+    .admin-page-title {
+        font-size: 1.25rem;
+    }
+
+    .admin-section-title,
+    .compose-title {
+        margin-bottom: 0.85rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .main-content {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .feed-card,
+    .auth-card,
+    .admin-section {
+        padding: 0.9rem;
+    }
+
+    .page-eyebrow {
+        font-size: 0.7rem;
+    }
+
+    .page-heading {
+        font-size: 1.35rem;
+    }
+
+    .navbar-brand {
+        font-size: 0.98rem;
+        max-width: calc(100vw - 4rem);
+    }
+
+    .profile-avatar,
+    .comment-avatar {
+        width: 44px;
+        height: 44px;
+    }
+
+    .post-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .profile-avatar-lg {
+        width: 64px;
+        height: 64px;
+    }
+
+    .post-image {
+        max-height: 240px;
+    }
+
+    .site-footer {
+        padding: 1rem 0;
+    }
 }

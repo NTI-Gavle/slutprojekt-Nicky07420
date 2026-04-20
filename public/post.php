@@ -54,7 +54,7 @@ $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
         <a href="index.php" class="small text-decoration-none">&larr; Back to feed</a>
 
         <div class="feed-card mt-2 mb-4">
-            <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="post-summary d-flex align-items-center gap-3 mb-3">
                 <?php if (!empty($postProfilePicture)): ?>
                     <img
                         src="<?= htmlspecialchars($postProfilePicture) ?>"
@@ -116,13 +116,13 @@ $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
         <div class="feed-card mb-3">
             <h6 class="compose-title mb-3">Comments (<?= count($comments) ?>)</h6>
 
-                <?php if (empty($comments)): ?>
+            <?php if (empty($comments)): ?>
                 <p class="text-muted mb-0">No comments yet.</p>
             <?php else: ?>
                 <?php foreach ($comments as $comment): ?>
                     <?php $commentProfilePicture = resolvePublicAssetPath($comment['profile_picture'] ?? null); ?>
                     <div class="comment-item">
-                        <div class="d-flex align-items-start gap-3">
+                        <div class="comment-row d-flex align-items-start gap-3">
                             <?php if (!empty($commentProfilePicture)): ?>
                                 <img
                                     src="<?= htmlspecialchars($commentProfilePicture) ?>"

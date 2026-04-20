@@ -12,23 +12,19 @@ require_once __DIR__ . '/../includes/functions.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>rahhhhh</title>
+    <title><?= htmlspecialchars(($pageTitle ?? 'Home') . ' | Suspiciously Ordinary Posts') ?></title>
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- CSS stuff -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
-
-    <!-- CSS -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
 <nav class="navbar navbar-expand-md navbar-dark bg-navbar">
     <div class="container">
-
-        <!-- Site name / logo -->
         <a class="navbar-brand fw-bold" href="index.php">Suspiciously Ordinary Posts rahhh</a>
 
         <!-- Hamburger toggle for mobile -->
@@ -43,8 +39,6 @@ require_once __DIR__ . '/../includes/functions.php';
         >
             <span class="navbar-toggler-icon"></span>
         </button>
-
-        <!-- Nav links -->
         <div class="collapse navbar-collapse" id="mainNav">
             <?php require __DIR__ . '/nav.php'; ?>
         </div>

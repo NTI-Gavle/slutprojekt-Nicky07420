@@ -7,7 +7,6 @@ function redirectTo(string $url): never
     die;
 }
 
-// Check if the current visitor is logged in.
 function isLoggedIn(): bool
 {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
@@ -49,28 +48,79 @@ function normalizeStoredAssetPath(?string $storedPath): ?string
     return $normalizedPath !== '' ? $normalizedPath : null;
 }
 
+function isAbsoluteFilesystemPath(string $path): bool
+{
+    return (bool) preg_match('~^(?:[a-z]:[\\/]|/)~i', $path);
+}
+
+function getProjectRootPath(): string
+{
+    return str_replace('\\', '/', dirname(__DIR__));
+}
+
+function filesystemPathToPublicAssetPath(string $absolutePath): ?string
+{
+    $absolutePath = str_replace('\\', '/', $absolutePath);
+    $projectRoot = getProjectRootPath();
+    $publicRoot = $projectRoot . '/public';
+
+    if (str_starts_with($absolutePath, $publicRoot . '/')) {
+        return ltrim(substr($absolutePath, strlen($publicRoot)), '/');
+    }
+
+    if (str_starts_with($absolutePath, $projectRoot . '/')) {
+        return '../' . ltrim(substr($absolutePath, strlen($projectRoot)), '/');
+    }
+
+    return null;
+}
+
 function resolvePublicAssetPath(?string $storedPath): ?string
 {
+    if ($storedPath === null) {
+        return null;
+    }
+
+    $storedPath = trim($storedPath);
+
+    if ($storedPath === '') {
+        return null;
+    }
+
+    if (preg_match('~^(?:[a-z][a-z0-9+.-]*:)?//~i', $storedPath) || str_starts_with($storedPath, 'data:')) {
+        return $storedPath;
+    }
+
+    if (isAbsoluteFilesystemPath($storedPath) && is_file($storedPath)) {
+        $webPath = filesystemPathToPublicAssetPath($storedPath);
+        if ($webPath !== null) {
+            return $webPath;
+        }
+    }
+
     $normalizedPath = normalizeStoredAssetPath($storedPath);
 
     if ($normalizedPath === null) {
         return null;
     }
 
-    if (preg_match('~^[a-z]:/~i', $normalizedPath)) {
-        return null;
-    }
-
-    $projectRoot = dirname(__DIR__);
+    $projectRoot = getProjectRootPath();
     $candidateFiles = [
-        $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $normalizedPath,
-        $projectRoot . DIRECTORY_SEPARATOR . $normalizedPath,
+        $projectRoot . '/public/' . $normalizedPath,
+        $projectRoot . '/' . $normalizedPath,
     ];
 
     foreach ($candidateFiles as $candidateFile) {
         if (is_file($candidateFile)) {
-            return $normalizedPath;
+            $webPath = filesystemPathToPublicAssetPath($candidateFile);
+            if ($webPath !== null) {
+                return $webPath;
+            }
         }
+    }
+
+    if (isAbsoluteFilesystemPath($storedPath)) {
+        return null;
     }
 
     return $normalizedPath;
@@ -88,10 +138,10 @@ function resolveStoredAssetFilesystemPath(?string $storedPath): ?string
         return $storedPath;
     }
 
-    $projectRoot = dirname(__DIR__);
+    $projectRoot = getProjectRootPath();
     $candidateFiles = [
-        $projectRoot . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $normalizedPath,
-        $projectRoot . DIRECTORY_SEPARATOR . $normalizedPath,
+        $projectRoot . '/public/' . $normalizedPath,
+        $projectRoot . '/' . $normalizedPath,
     ];
 
     foreach ($candidateFiles as $candidateFile) {

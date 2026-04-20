@@ -1,4 +1,4 @@
-<ul class="navbar-nav ms-auto align-items-md-center gap-1">
+<ul class="navbar-nav ms-md-auto align-items-start align-items-md-center gap-2 gap-md-1 py-3 py-md-0">
     <?php if (isLoggedIn()): ?>
 
         <!-- Logged-in links -->
@@ -26,7 +26,7 @@
             <a class="nav-link" href="login.php">Log in</a>
         </li>
         <li class="nav-item">
-            <a class="btn btn-outline-light btn-sm ms-1" href="register.php">Register</a>
+            <a class="btn btn-outline-light btn-sm ms-0 ms-md-1" href="register.php">Register</a>
         </li>
 
     <?php endif; ?>

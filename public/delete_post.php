@@ -3,7 +3,6 @@
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../database/post_queries.php';
 
-// Must be logged in to delete anything
 requireLogin();
 
 // Only accept POST requests — never delete on a plain GET request
@@ -17,8 +16,7 @@ if ($postId <= 0) {
     redirectTo('index.php');
 }
 
-// deleteOwnPost checks ownership inside the query, so another user
-// Can't delete someone else's post even by crafting a POST request.
+// Only allow deleting if the post belongs to the logged-in user
 deleteOwnPost($dbconn, $postId, (int) $_SESSION['user_id']);
 
 redirectTo('index.php');

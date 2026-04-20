@@ -1,5 +1,5 @@
 // Javascripty
-// Character counter for the compose textarea on the feed page
+// Character counter
 const textarea = document.getElementById('postContent');
 const counter  = document.getElementById('charCounter');
 

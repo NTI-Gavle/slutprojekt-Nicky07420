@@ -18,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Keep fields filled in on error
     $formData = ['username' => $username, 'email' => $email];
 
-    // Validation
     if (empty($username)) {
         $errors[] = 'Username is required.';
     } elseif (strlen($username) < 3 || strlen($username) > 50) {
@@ -29,15 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'A valid email address is required.';
     }
 
-    if (strlen($password) < 8) {
-        $errors[] = 'Password must be at least 8 characters.';
+    if (strlen($password) < 7) {
+        $errors[] = 'Password must be at least 7 characters.';
     }
 
     if ($password !== $password2) {
         $errors[] = 'Passwords do not match.';
     }
 
-    // Uniqueness check (only if basic validation passed)
     if (empty($errors)) {
         $taken = checkUserExists($dbconn, $username, $email);
 
@@ -45,10 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($taken['email'])    $errors[] = 'That email address is already registered.';
     }
 
-    // Insert user
     if (empty($errors)) {
         if (createUser($dbconn, $username, $email, $password)) {
-            // Log the new user straight in
             $user = getUserByUsername($dbconn, $username);
             session_regenerate_id(true);
             $_SESSION['user_id']  = $user['id'];
@@ -70,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2 class="auth-title">Create an account</h2>
             <p class="auth-sub">Join for free today!</p>
 
-            <!-- Error list -->
             <?php if ($errors): ?>
                 <div class="alert alert-danger py-2" role="alert">
                     <ul class="mb-0 ps-3">
@@ -81,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <!-- Register form -->
             <form method="post" action="register.php" novalidate>
 
                 <div class="mb-3">
@@ -136,7 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <button type="submit" class="btn btn-primary w-100 mt-1">Create account</button>
 
-                <!-- GDPR notice -->
                 <p class="gdpr-notice">
                     By registering you agree to our
                     <a href="privacy.php">privacy policy</a> (GDPR).

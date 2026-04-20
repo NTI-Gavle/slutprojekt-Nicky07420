@@ -22,7 +22,7 @@ if ($userId <= 0 || $userId === (int) $_SESSION['user_id']) {
 
 $imagePaths = getUserPostImagePaths($dbconn, $userId);
 
-// Delete the user and their posts, then delete any associated images
+// Delete the user and their posts, then delete any associated images.
 if (deleteUserById($dbconn, $userId)) {
     foreach ($imagePaths as $imagePath) {
         $absoluteImagePath = resolveStoredAssetFilesystemPath($imagePath);

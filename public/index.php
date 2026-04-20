@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $postError = 'Post cannot be longer than 500 characters. (How did you get this message)?';
     } elseif (!$postError) {
         if (createPost($dbconn, (int) $_SESSION['user_id'], $content, $imagePath)) {
-            // Redirect to avoid re-submitting the form on refresh (PRG pattern)
             redirectTo('index.php');
         } else {
             $postError = 'Something went wrong. Please try again.';
@@ -94,7 +93,7 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                 <div class="mb-3">
                     <input class="form-control form-control-sm compose-file-input" type="file" name="image" accept="image/*">
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="compose-actions d-flex justify-content-between align-items-center gap-2">
                     <span class="char-counter" id="charCounter">500 characters left</span>
                     <button type="submit" class="btn btn-primary btn-sm px-4">Post</button>
                 </div>
@@ -112,7 +111,7 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
             $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
             ?>
             <div class="feed-card mb-3" id="post-<?= (int) $post['id'] ?>">
-                <div class="d-flex align-items-start gap-3 mb-2">
+                <div class="post-card-body d-flex align-items-start gap-3 mb-2">
                     <?php if (!empty($postProfilePicture)): ?>
                         <img
                             src="<?= htmlspecialchars($postProfilePicture) ?>"

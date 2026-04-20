@@ -2,18 +2,15 @@
 $pageTitle = "Contact";
 require_once __DIR__ . '/../includes/header.php';
 
-// Initialise variables
 $name = $email = $message = '';
 $errors = [];
 $success = false;
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $message = trim($_POST['message'] ?? '');
 
-    // Basic validation
     if (empty($name)) {
         $errors[] = "Name is required.";
     }
@@ -24,43 +21,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Message cannot be empty.";
     }
 
-    // If no errors, you can send email or save to DB
     if (!$errors) {
-        // Example: send email (requires proper mail setup)
-        // mail("you@example.com", "Contact Form Message from $name", $message, "From:$email");
 
         $success = true;
-        $name = $email = $message = ''; // clear form
+        $name = $email = $message = '';
     }
 }
 ?>
 
-<h2>Contact Us</h2>
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-7">
+        <div class="feed-card">
+            <p class="page-eyebrow">Contact</p>
+            <h1 class="page-heading mb-2">Contact Us</h1>
+            <p class="page-copy mb-4">Send a message and I will get back to you.</p>
 
-<?php if ($success): ?>
-    <p class="success-message">Thank you! Your message has been sent.</p>
-<?php endif; ?>
+            <?php if ($success): ?>
+                <div class="alert alert-success py-2" role="alert">
+                    Thank you! Your message has been sent.
+                </div>
+            <?php endif; ?>
 
-<?php if ($errors): ?>
-    <ul class="error-messages">
-        <?php foreach ($errors as $error): ?>
-            <li><?= htmlspecialchars($error) ?></li>
-        <?php endforeach; ?>
-    </ul>
-<?php endif; ?>
+            <?php if ($errors): ?>
+                <div class="alert alert-danger py-2" role="alert">
+                    <ul class="mb-0 ps-3">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?= htmlspecialchars($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
-<form action="contact.php" method="post" class="contact-form">
-    <label for="name">Name:</label>
-    <input type="text" name="name" id="name" value="<?= htmlspecialchars($name) ?>">
+            <form action="contact.php" method="post" class="contact-form">
+                <div>
+                    <label for="name" class="form-label">Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        class="form-control"
+                        value="<?= htmlspecialchars($name) ?>"
+                    >
+                </div>
 
-    <label for="email">Email:</label>
-    <input type="email" name="email" id="email" value="<?= htmlspecialchars($email) ?>">
+                <div>
+                    <label for="email" class="form-label">Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        class="form-control"
+                        value="<?= htmlspecialchars($email) ?>"
+                    >
+                </div>
 
-    <label for="message">Message:</label>
-    <textarea name="message" id="message"><?= htmlspecialchars($message) ?></textarea>
+                <div>
+                    <label for="message" class="form-label">Message</label>
+                    <textarea
+                        name="message"
+                        id="message"
+                        class="form-control"
+                        rows="5"
+                    ><?= htmlspecialchars($message) ?></textarea>
+                </div>
 
-    <button type="submit">Send</button>
-</form>
+                <div class="d-grid d-sm-flex justify-content-sm-end">
+                    <button type="submit" class="btn btn-primary px-4">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <?php
 require_once __DIR__ . '/../includes/footer.php';

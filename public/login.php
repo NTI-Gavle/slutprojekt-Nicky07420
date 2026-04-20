@@ -12,20 +12,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // Basic presence check
     if (empty($username) || empty($password)) {
         $error = 'Please fill in both fields.';
     } else {
-        // Look up the user in the database
         $user = getUserByUsername($dbconn, $username);
 
-        // Verify the password against the stored bcrypt hash
         if ($user && password_verify($password, $user['password_hash'])) {
 
             // Regenerate session ID to prevent session fixation attacks
             session_regenerate_id(true);
 
-            // Store the user info we need in session
             $_SESSION['user_id']  = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role']     = $user['role'];
@@ -33,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirectTo('index.php');
 
         } else {
-            // Generic message – don't reveal whether username or password was wrong
             $error = 'Incorrect username or password.';
         }
     }
@@ -48,14 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2 class="auth-title">Welcome back</h2>
             <p class="auth-sub">Log in to see your feed</p>
 
-            <!-- Error alert -->
             <?php if ($error): ?>
                 <div class="alert alert-danger py-2" role="alert">
                     <?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Login form -->
             <form method="post" action="login.php" novalidate>
 
                 <div class="mb-3">

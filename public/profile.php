@@ -148,7 +148,7 @@ $profileBio = trim((string) ($profile['bio'] ?? ''));
         </div>
 
         <div class="feed-card mb-4 profile-card">
-            <div class="d-flex align-items-start gap-3">
+            <div class="profile-summary d-flex align-items-start gap-3">
                 <?php if (!empty($profilePicture)): ?>
                     <img
                         src="<?= htmlspecialchars($profilePicture) ?>"
@@ -211,7 +211,7 @@ $profileBio = trim((string) ($profile['bio'] ?? ''));
                         >
                     </div>
 
-                    <div class="text-end">
+                    <div class="profile-edit-actions text-end">
                         <button type="submit" class="btn btn-primary btn-sm px-4">Save profile</button>
                     </div>
                 </form>

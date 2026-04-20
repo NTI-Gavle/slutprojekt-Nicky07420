@@ -4,8 +4,6 @@ $pageTitle = 'Admin Panel';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../database/user_queries.php';
 require_once __DIR__ . '/../database/post_queries.php';
-
-// Only admins can access this page
 if (!isLoggedIn() || $_SESSION['role'] !== 'admin') {
     redirectTo('index.php');
 }
@@ -25,14 +23,12 @@ $posts = $dbconn->query(
      ORDER BY posts.created_at DESC'
 )->fetchAll();
 
-// Quick stats
 $totalUsers = count($users);
 $totalPosts = count($posts);
 $todayPosts = count(array_filter($posts, fn($p) => str_starts_with($p['created_at'], date('Y-m-d'))));
 $adminCount  = count(array_filter($users, fn($u) => $u['role'] === 'admin'));
 ?>
 
-<!-- Page header -->
 <div class="d-flex align-items-center gap-2 mb-4">
     <h2 class="admin-page-title mb-0">Admin Panel</h2>
     <span class="badge bg-danger">ADMIN</span>
