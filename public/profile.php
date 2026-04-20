@@ -165,11 +165,8 @@ $profileBio = trim((string) ($profile['bio'] ?? ''));
                     <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
                         <div>
                             <h5 class="mb-1">@<?= htmlspecialchars($profile['username']) ?></h5>
-                            <p class="text-muted mb-0">Member since <?= htmlspecialchars($profile['created_at']) ?></p>
+                            <p class="text-light mb-0">Member since <?= htmlspecialchars($profile['created_at']) ?></p>
                         </div>
-                        <?php if ($isOwnProfile): ?>
-                            <span class="badge bg-secondary">Your profile</span>
-                        <?php endif; ?>
                     </div>
 
                     <p class="profile-bio mt-3 mb-0">

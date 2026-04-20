@@ -196,6 +196,63 @@ function getCommentById(PDO $dbconn, int $commentId): ?array
     return $comment !== false ? $comment : null;
 }
 
+function updateCommentContent(PDO $dbconn, int $commentId, int $userId, string $content): bool
+{
+    ensureCommentReplySchema($dbconn);
+
+    $stmt = $dbconn->prepare(
+        'UPDATE comments
+         SET content = :content
+         WHERE id = :comment_id AND user_id = :user_id'
+    );
+
+    return $stmt->execute([
+        ':content' => $content,
+        ':comment_id' => $commentId,
+        ':user_id' => $userId,
+    ]);
+}
+
+function getCommentDescendantIds(PDO $dbconn, int $commentId): array
+{
+    ensureCommentReplySchema($dbconn);
+
+    $stmt = $dbconn->prepare(
+        'SELECT id
+         FROM comments
+         WHERE parent_comment_id = :parent_comment_id
+         ORDER BY id ASC'
+    );
+    $stmt->execute([':parent_comment_id' => $commentId]);
+    $childIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $ids = [$commentId];
+
+    foreach ($childIds as $childId) {
+        $ids = array_merge($ids, getCommentDescendantIds($dbconn, (int) $childId));
+    }
+
+    return array_values(array_unique(array_map('intval', $ids)));
+}
+
+function deleteCommentThread(PDO $dbconn, int $commentId, int $userId): bool
+{
+    ensureCommentReplySchema($dbconn);
+
+    $comment = getCommentById($dbconn, $commentId);
+
+    if (!$comment || (int) $comment['user_id'] !== $userId) {
+        return false;
+    }
+
+    $commentIds = getCommentDescendantIds($dbconn, $commentId);
+    $placeholders = implode(',', array_fill(0, count($commentIds), '?'));
+
+    $stmt = $dbconn->prepare('DELETE FROM comments WHERE id IN (' . $placeholders . ')');
+
+    return $stmt->execute($commentIds);
+}
+
 function getCommentsByPostId(PDO $dbconn, int $postId): array
 {
     ensureCommentReplySchema($dbconn);

@@ -30,32 +30,59 @@ if (!$post) {
 $commentError = '';
 $commentDraft = '';
 $replyParentId = null;
+$editCommentId = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $commentDraft = trim(str_replace("\r\n", "\n", $_POST['comment'] ?? ''));
     $submittedParentCommentId = (int) ($_POST['parent_comment_id'] ?? 0);
+    $submittedEditCommentId = (int) ($_POST['edit_comment_id'] ?? 0);
+    $submittedDeleteCommentId = (int) ($_POST['delete_comment_id'] ?? 0);
     $replyParentId = $submittedParentCommentId > 0 ? $submittedParentCommentId : null;
+    $editCommentId = $submittedEditCommentId > 0 ? $submittedEditCommentId : null;
 
-    if ($commentDraft === '') {
-        $commentError = 'Comment cannot be empty.';
-    } elseif (mb_strlen($commentDraft) > 500) {
-        $commentError = 'Comment cannot be longer than 500 characters.';
+    if ($submittedDeleteCommentId > 0) {
+        if (deleteCommentThread($dbconn, $submittedDeleteCommentId, $currentUserId)) {
+            redirectTo('post.php?id=' . $postId . '#comments');
+        }
+
+        $commentError = 'You can only delete your own comments.';
+    } elseif ($editCommentId !== null) {
+        $existingComment = getCommentById($dbconn, $editCommentId);
+
+        if (!$existingComment || (int) $existingComment['user_id'] !== $currentUserId || (int) $existingComment['post_id'] !== $postId) {
+            $commentError = 'You can only edit your own comments.';
+            $editCommentId = null;
+        } elseif ($commentDraft === '') {
+            $commentError = 'Comment cannot be empty.';
+        } elseif (mb_strlen($commentDraft) > 500) {
+            $commentError = 'Comment cannot be longer than 500 characters.';
+        } elseif (updateCommentContent($dbconn, $editCommentId, $currentUserId, $commentDraft)) {
+            redirectTo('post.php?id=' . $postId . '#comments');
+        } else {
+            $commentError = 'Something went wrong. Please try again.';
+        }
     } else {
-        if ($replyParentId !== null) {
-            $parentComment = getCommentById($dbconn, $replyParentId);
+        if ($commentDraft === '') {
+            $commentError = 'Comment cannot be empty.';
+        } elseif (mb_strlen($commentDraft) > 500) {
+            $commentError = 'Comment cannot be longer than 500 characters.';
+        } else {
+            if ($replyParentId !== null) {
+                $parentComment = getCommentById($dbconn, $replyParentId);
 
-            if (!$parentComment || (int) $parentComment['post_id'] !== $postId) {
-                $commentError = 'That comment cannot be replied to.';
-                $replyParentId = null;
-            } elseif (createComment($dbconn, $postId, $currentUserId, $commentDraft, $replyParentId)) {
+                if (!$parentComment || (int) $parentComment['post_id'] !== $postId) {
+                    $commentError = 'That comment cannot be replied to.';
+                    $replyParentId = null;
+                } elseif (createComment($dbconn, $postId, $currentUserId, $commentDraft, $replyParentId)) {
+                    redirectTo('post.php?id=' . $postId . '#comments');
+                } else {
+                    $commentError = 'Something went wrong. Please try again.';
+                }
+            } elseif (createComment($dbconn, $postId, $currentUserId, $commentDraft)) {
                 redirectTo('post.php?id=' . $postId . '#comments');
             } else {
                 $commentError = 'Something went wrong. Please try again.';
             }
-        } elseif (createComment($dbconn, $postId, $currentUserId, $commentDraft)) {
-            redirectTo('post.php?id=' . $postId . '#comments');
-        } else {
-            $commentError = 'Something went wrong. Please try again.';
         }
     }
 }
@@ -72,7 +99,9 @@ $renderCommentThreads = function (
     array $commentsByParent,
     int $parentId,
     int $postId,
+    int $currentUserId,
     ?int $replyParentId,
+    ?int $editCommentId,
     string $commentDraft
  ) use (&$renderCommentThreads): void {
     if (empty($commentsByParent[$parentId])) {
@@ -83,7 +112,10 @@ $renderCommentThreads = function (
         $commentId = (int) $comment['id'];
         $commentProfilePicture = resolvePublicAssetPath($comment['profile_picture'] ?? null);
         $replyFormId = 'reply-form-' . $commentId;
+        $editFormId = 'edit-form-' . $commentId;
+        $isOwnComment = (int) $comment['user_id'] === $currentUserId;
         $isReplyOpen = $replyParentId === $commentId;
+        $isEditOpen = $editCommentId === $commentId;
         ?>
         <div class="comment-item">
             <div class="comment-row d-flex align-items-start gap-3">
@@ -108,7 +140,7 @@ $renderCommentThreads = function (
                     </div>
                     <p class="post-content mb-2"><?= htmlspecialchars($comment['content']) ?></p>
 
-                    <div class="comment-actions mb-2">
+                    <div class="comment-actions d-flex flex-wrap align-items-center gap-2 mb-2">
                         <button
                             type="button"
                             class="btn btn-link btn-sm p-0 text-decoration-none comment-reply-toggle"
@@ -119,6 +151,49 @@ $renderCommentThreads = function (
                         >
                             Reply
                         </button>
+
+                        <?php if ($isOwnComment): ?>
+                            <button
+                                type="button"
+                                class="btn btn-link btn-sm p-0 text-decoration-none comment-reply-toggle"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#<?= htmlspecialchars($editFormId) ?>"
+                                aria-expanded="<?= $isEditOpen ? 'true' : 'false' ?>"
+                                aria-controls="<?= htmlspecialchars($editFormId) ?>"
+                            >
+                                Edit
+                            </button>
+
+                            <form
+                                method="post"
+                                action="post.php?id=<?= (int) $postId ?>"
+                                class="d-inline"
+                                onsubmit="return confirm('Delete this comment and all of its replies?')"
+                            >
+                                <input type="hidden" name="delete_comment_id" value="<?= $commentId ?>">
+                                <button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none comment-delete-toggle">
+                                    Delete
+                                </button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="collapse <?= $isEditOpen ? 'show' : '' ?>" id="<?= htmlspecialchars($editFormId) ?>">
+                        <form method="post" action="post.php?id=<?= (int) $postId ?>" class="reply-form">
+                            <input type="hidden" name="edit_comment_id" value="<?= $commentId ?>">
+                            <div class="mb-2">
+                                <textarea
+                                    class="form-control compose-textarea"
+                                    name="comment"
+                                    rows="2"
+                                    maxlength="500"
+                                    placeholder="Edit your comment..."
+                                ><?= $isEditOpen ? htmlspecialchars($commentDraft) : htmlspecialchars($comment['content']) ?></textarea>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary btn-sm px-4">Save</button>
+                            </div>
+                        </form>
                     </div>
 
                     <div class="collapse <?= $isReplyOpen ? 'show' : '' ?>" id="<?= htmlspecialchars($replyFormId) ?>">
@@ -143,7 +218,7 @@ $renderCommentThreads = function (
 
             <?php if (!empty($commentsByParent[$commentId])): ?>
                 <div class="comment-thread">
-                    <?php $renderCommentThreads($commentsByParent, $commentId, $postId, $replyParentId, $commentDraft); ?>
+                    <?php $renderCommentThreads($commentsByParent, $commentId, $postId, $currentUserId, $replyParentId, $editCommentId, $commentDraft); ?>
                 </div>
             <?php endif; ?>
         </div>
@@ -237,7 +312,7 @@ $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
                         rows="3"
                         maxlength="500"
                         placeholder="Write a comment..."
-                    ><?= $replyParentId === null ? htmlspecialchars($commentDraft) : '' ?></textarea>
+                    ><?= $replyParentId === null && $editCommentId === null ? htmlspecialchars($commentDraft) : '' ?></textarea>
                 </div>
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary btn-sm px-4">Comment</button>
@@ -251,7 +326,7 @@ $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
             <?php if (empty($comments)): ?>
                 <p class="text-muted mb-0">No comments yet.</p>
             <?php else: ?>
-                <?php $renderCommentThreads($commentsByParent, 0, $postId, $replyParentId, $commentDraft); ?>
+                <?php $renderCommentThreads($commentsByParent, 0, $postId, $currentUserId, $replyParentId, $editCommentId, $commentDraft); ?>
             <?php endif; ?>
         </div>
     </div>

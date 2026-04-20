@@ -388,6 +388,17 @@ a:hover {
     text-decoration: none;
 }
 
+.comment-delete-toggle {
+    color: #f87171;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.comment-delete-toggle:hover {
+    color: #fca5a5;
+    text-decoration: none;
+}
+
 .reply-form {
     margin-top: 0.5rem;
 }
