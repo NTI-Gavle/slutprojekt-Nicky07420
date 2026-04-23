@@ -170,7 +170,10 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                         class="comment-counter text-decoration-none"
                         aria-label="Comment count"
                     >
-                        <?= (int) $post['comment_count'] ?> comment<?= (int) $post['comment_count'] === 1 ? '' : 's' ?>
+                        <?= renderCommentBubbleIcon() ?>
+                        <span class="comment-counter-text">
+                            <?= (int) $post['comment_count'] ?> comment<?= (int) $post['comment_count'] === 1 ? '' : 's' ?>
+                        </span>
                     </a>
                 </div>
 

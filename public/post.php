@@ -292,7 +292,10 @@ $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
                     <?= (int) $post['like_count'] ?> like<?= (int) $post['like_count'] === 1 ? '' : 's' ?>
                 </span>
                 <a href="#comments" class="comment-counter text-decoration-none" aria-label="Comment count">
-                    <?= (int) $post['comment_count'] ?> comment<?= (int) $post['comment_count'] === 1 ? '' : 's' ?>
+                    <?= renderCommentBubbleIcon() ?>
+                    <span class="comment-counter-text">
+                        <?= (int) $post['comment_count'] ?> comment<?= (int) $post['comment_count'] === 1 ? '' : 's' ?>
+                    </span>
                 </a>
             </div>
         </div>

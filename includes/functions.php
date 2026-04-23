@@ -162,3 +162,13 @@ function getUserInitial(string $username): string
 
     return mb_strtoupper(mb_substr($username, 0, 1));
 }
+
+function renderCommentBubbleIcon(string $className = 'comment-bubble-icon'): string
+{
+
+    // Goofy ahh name
+    return sprintf(
+        '<span class="%s" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" role="img"><path d="M5.5 4.5h13a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H13l-4.5 3v-3H5.5a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z"/><circle cx="9" cy="11" r="1"/><circle cx="12" cy="11" r="1"/><circle cx="15" cy="11" r="1"/></svg></span>',
+        htmlspecialchars($className, ENT_QUOTES, 'UTF-8')
+    );
+}
