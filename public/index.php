@@ -127,7 +127,12 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                         <!-- Post header: username + timestamp -->
                         <div class="post-header mb-2">
                             <span class="post-username">@<?= htmlspecialchars($post['username']) ?></span>
-                            <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+                            <span class="post-meta">
+                                <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+                                <?php if (!empty($post['edited_at'])): ?>
+                                    <span class="edited-indicator">edited</span>
+                                <?php endif; ?>
+                            </span>
                         </div>
 
                         <?php if ($post['content'] !== ''): ?>
@@ -179,11 +184,14 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
 
                 <!-- Delete button; only shown to the post's author -->
                 <?php if ((int) $post['user_id'] === (int) $_SESSION['user_id']): ?>
-                    <form method="post" action="delete_post.php"
-                          onsubmit="return confirm('Delete this post?')">
-                        <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
-                        <button type="submit" class="btn btn-delete btn-sm">Delete</button>
-                    </form>
+                    <div class="post-owner-actions d-flex align-items-center gap-2">
+                        <a href="post.php?id=<?= (int) $post['id'] ?>&edit=1#edit-post" class="btn btn-secondary btn-sm">Edit</a>
+                        <form method="post" action="delete_post.php"
+                              onsubmit="return confirm('Delete this post?')">
+                            <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+                            <button type="submit" class="btn btn-delete btn-sm">Delete</button>
+                        </form>
+                    </div>
                 <?php endif; ?>
 
             </div>

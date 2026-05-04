@@ -269,6 +269,19 @@ a:hover {
     color: #4b5563;
 }
 
+.post-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.edited-indicator {
+    color: #6b7280;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
 /* Post body text */
 .post-content {
     color: #e8e8f0;
@@ -276,6 +289,7 @@ a:hover {
     line-height: 1.55;
     white-space: pre-wrap;
     word-break: break-word;
+    overflow-wrap: anywhere;
     margin-bottom: 0.5rem;
 }
 
@@ -321,6 +335,25 @@ a:hover {
     border-color: #dc3545;
     color: #ffffff;
     opacity: 0.6;
+}
+
+.post-owner-actions {
+    flex-wrap: wrap;
+}
+
+.post-owner-actions .btn-secondary {
+    background-color: #312e81;
+    border-color: #312e81;
+    color: #ffffff;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    padding: 0.2rem 0.7rem;
+}
+
+.post-owner-actions .btn-secondary:hover {
+    background-color: #4338ca;
+    border-color: #4338ca;
+    color: #ffffff;
 }
 
 .btn-heart {
@@ -381,10 +414,26 @@ a:hover {
     padding-top: 0.15rem;
 }
 
+.post-edit-toggle {
+    color: #a78bfa;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.post-edit-toggle:hover {
+    color: #c4b5fd;
+}
+
+.post-edit-form {
+    margin-top: 1rem;
+}
+
 .comment-item {
     border-top: 1px solid #2d1b5e;
     padding-top: 0.8rem;
     margin-top: 0.8rem;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .comment-item:first-of-type {
@@ -421,12 +470,26 @@ a:hover {
 
 .reply-form {
     margin-top: 0.5rem;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.reply-form .form-control {
+    max-width: 100%;
 }
 
 .comment-thread {
-    margin-left: 2.2rem;
-    padding-left: 1rem;
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    padding-left: 0.6rem;
     border-left: 1px solid #2d1b5e;
+}
+
+.comment-thread-capped {
+    border-left: none;
+    padding-left: 0;
 }
 
 .profile-link {
@@ -645,6 +708,7 @@ a:hover {
 .profile-summary,
 .post-card-body,
 .post-summary,
+.comment-item,
 .comment-row {
     min-width: 0;
 }
@@ -655,6 +719,7 @@ a:hover {
 .post-summary > .flex-grow-1,
 .comment-row > .flex-grow-1 {
     min-width: 0;
+    max-width: 100%;
 }
 
 .profile-edit-actions {
@@ -755,8 +820,12 @@ a:hover {
     }
 
     .comment-thread {
-        margin-left: 1.2rem;
-        padding-left: 0.85rem;
+        margin-left: 0;
+        padding-left: 0.4rem;
+    }
+
+    .comment-thread-capped {
+        padding-left: 0;
     }
 
     .profile-avatar,

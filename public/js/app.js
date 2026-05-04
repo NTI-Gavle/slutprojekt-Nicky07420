@@ -10,12 +10,10 @@ if (textarea && counter) {
         const remaining = MAX - textarea.value.length;
         counter.textContent = remaining + ' characters left';
 
-        // Turn red when close to the limit
         counter.style.color = remaining <= 20 ? '#f87171' : '';
     }
 
     textarea.addEventListener('input', updateCounter);
 
-    // Run once on load in case the field is pre-filled (e.g. after a failed submit)
     updateCounter();
 }

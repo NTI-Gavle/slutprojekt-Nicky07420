@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/db.php';
 
-function ensureCommentReplySchema(PDO $dbconn): void
+function ensurePostInteractionSchema(PDO $dbconn): void
 {
     static $checked = false;
 
@@ -21,8 +21,26 @@ function ensureCommentReplySchema(PDO $dbconn): void
                 'ALTER TABLE comments ADD COLUMN parent_comment_id INT NULL DEFAULT NULL AFTER post_id'
             );
         }
+
+        $stmt = $dbconn->query("SHOW COLUMNS FROM posts LIKE 'edited_at'");
+        $hasPostEditedAt = $stmt !== false && $stmt->fetch() !== false;
+
+        if (!$hasPostEditedAt) {
+            $dbconn->exec(
+                'ALTER TABLE posts ADD COLUMN edited_at DATETIME NULL DEFAULT NULL AFTER created_at'
+            );
+        }
+
+        $stmt = $dbconn->query("SHOW COLUMNS FROM comments LIKE 'edited_at'");
+        $hasCommentEditedAt = $stmt !== false && $stmt->fetch() !== false;
+
+        if (!$hasCommentEditedAt) {
+            $dbconn->exec(
+                'ALTER TABLE comments ADD COLUMN edited_at DATETIME NULL DEFAULT NULL AFTER created_at'
+            );
+        }
     } catch (Throwable $e) {
-        error_log('Could not ensure comment reply schema: ' . $e->getMessage());
+        error_log('Could not ensure post interaction schema: ' . $e->getMessage());
     }
 }
 
@@ -43,7 +61,7 @@ function createPost(PDO $dbconn, int $userId, string $content, ?string $imagePat
 // Fetch all posts ordered newest first, including username + like metadata.
 function getAllPosts(PDO $dbconn, int $currentUserId): array
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $stmt = $dbconn->prepare(
         'SELECT posts.*, users.username, users.profile_picture,
@@ -76,6 +94,23 @@ function deleteOwnPost(PDO $dbconn, int $postId, int $userId): bool
 
     // rowCount() tells whether a row was actually deleted
     return $stmt->rowCount() > 0;
+}
+
+function updateOwnPost(PDO $dbconn, int $postId, int $userId, string $content): bool
+{
+    ensurePostInteractionSchema($dbconn);
+
+    $stmt = $dbconn->prepare(
+        'UPDATE posts
+         SET content = :content, edited_at = NOW()
+         WHERE id = :id AND user_id = :user_id'
+    );
+
+    return $stmt->execute([
+        ':content' => $content,
+        ':id'      => $postId,
+        ':user_id' => $userId,
+    ]);
 }
 
 function getPostImagePath(PDO $dbconn, int $postId): ?string
@@ -129,7 +164,7 @@ function getPostLikeCount(PDO $dbconn, int $postId): int
 
 function getPostById(PDO $dbconn, int $postId, ?int $currentUserId = null): ?array
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $stmt = $dbconn->prepare(
         'SELECT posts.*, users.username, users.profile_picture,
@@ -163,7 +198,7 @@ function createComment(
     ?int $parentCommentId = null
 ): bool
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $stmt = $dbconn->prepare(
         'INSERT INTO comments (post_id, user_id, parent_comment_id, content)
@@ -180,7 +215,7 @@ function createComment(
 
 function getCommentById(PDO $dbconn, int $commentId): ?array
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $stmt = $dbconn->prepare(
         'SELECT comments.*, users.username, users.profile_picture
@@ -198,11 +233,11 @@ function getCommentById(PDO $dbconn, int $commentId): ?array
 
 function updateCommentContent(PDO $dbconn, int $commentId, int $userId, string $content): bool
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $stmt = $dbconn->prepare(
         'UPDATE comments
-         SET content = :content
+         SET content = :content, edited_at = NOW()
          WHERE id = :comment_id AND user_id = :user_id'
     );
 
@@ -215,7 +250,7 @@ function updateCommentContent(PDO $dbconn, int $commentId, int $userId, string $
 
 function getCommentDescendantIds(PDO $dbconn, int $commentId): array
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $stmt = $dbconn->prepare(
         'SELECT id
@@ -237,7 +272,7 @@ function getCommentDescendantIds(PDO $dbconn, int $commentId): array
 
 function deleteCommentThread(PDO $dbconn, int $commentId, int $userId): bool
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $comment = getCommentById($dbconn, $commentId);
 
@@ -255,7 +290,7 @@ function deleteCommentThread(PDO $dbconn, int $commentId, int $userId): bool
 
 function getCommentsByPostId(PDO $dbconn, int $postId): array
 {
-    ensureCommentReplySchema($dbconn);
+    ensurePostInteractionSchema($dbconn);
 
     $stmt = $dbconn->prepare(
         'SELECT comments.*, users.username, users.profile_picture
