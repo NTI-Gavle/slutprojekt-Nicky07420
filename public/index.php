@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $postError = 'Only JPG, PNG, GIF, and WebP images are allowed.';
             } else {
                 $uploadDirectory = __DIR__ . '/uploads/posts';
-
+                // Creates the uploads/posts directory if it doesn't exist, with proper error handling
                 if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0777, true) && !is_dir($uploadDirectory)) {
                     $postError = 'Could not save the uploaded image.';
                 } else {
@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Validate post content
     if (!$postError && $content === '' && $imagePath === null) {
         $postError = 'Post cannot be empty.';
     } elseif (!$postError && mb_strlen($content) > 500) {
@@ -148,7 +149,7 @@ $posts = getAllPosts($dbconn, (int) $_SESSION['user_id']);
                         <?php endif; ?>
                     </a>
                 </div>
-
+                
                 <div class="post-engagement d-flex align-items-center gap-2 mb-2">
                     <form method="post" action="like_post.php" class="js-like-form">
                         <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">

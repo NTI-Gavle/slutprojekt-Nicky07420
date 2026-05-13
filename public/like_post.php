@@ -18,6 +18,7 @@ $action = $_POST['action'] ?? '';
 $userId = (int) $_SESSION['user_id'];
 $returnTo = $_POST['return_to'] ?? '';
 
+// Redirect back to where you were after liking/unliking so you don't have to scroll again
 if (preg_match('/^post-(\d+)$/', $returnTo, $matches)) {
     $redirectUrl = 'index.php#post-' . (int) $matches[1];
 } elseif (preg_match('/^post-view-(\d+)$/', $returnTo, $matches)) {

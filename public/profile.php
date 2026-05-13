@@ -28,6 +28,7 @@ $requestedUsername = trim($_GET['user'] ?? '');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bio = trim(str_replace("\r\n", "\n", $_POST['bio'] ?? ''));
     $profilePicturePath = null;
+    // Treat any error code other than UPLOAD_ERR_NO_FILE as an attempted upload
     $hasUpload = isset($_FILES['profile_picture']) && (int) ($_FILES['profile_picture']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
 
     if (mb_strlen($bio) > 160) {
@@ -46,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ((int) $picture['error'] !== UPLOAD_ERR_OK) {
             $profileError = 'Profile picture upload failed. Please try again.';
         } else {
+            // Use mime_content_type on the temp file rather than trusting the
+            // client-supplied MIME type, which can be trivially spoofed
             $mimeType = mime_content_type($picture['tmp_name']) ?: '';
 
             if (!isset($allowedMimeTypes[$mimeType])) {
@@ -53,9 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $uploadDirectory = __DIR__ . '/uploads/profiles';
 
+                // The middle condition handles a race where another process creates
+                // the directory between the is_dir check and the mkdir call
                 if (!is_dir($uploadDirectory) && !mkdir($uploadDirectory, 0777, true) && !is_dir($uploadDirectory)) {
                     $profileError = 'Could not save the uploaded profile picture.';
                 } else {
+                    // uniqid with more_entropy=true reduces collision risk on busy servers
                     $filename = uniqid('profile_', true) . '.' . $allowedMimeTypes[$mimeType];
                     $destination = $uploadDirectory . '/' . $filename;
 
@@ -79,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $searchResults = $searchQuery !== '' ? searchUsersByUsername($dbconn, $searchQuery) : [];
+// Default to showing the logged-in user's own profile; overridden below if ?user= is set
 $profile = $currentUser;
 
 if ($requestedUsername !== '') {
@@ -95,126 +102,3 @@ $isOwnProfile = (int) $profile['id'] === (int) $currentUser['id'];
 $profilePicture = resolvePublicAssetPath($profile['profile_picture'] ?? null);
 $profileBio = trim((string) ($profile['bio'] ?? ''));
 ?>
-
-<div class="row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-7">
-        <div class="feed-card mb-4">
-            <h5 class="compose-title mb-3">Search profiles</h5>
-
-            <form method="get" action="profile.php" class="profile-search-form">
-                <input
-                    type="text"
-                    name="q"
-                    class="form-control compose-textarea"
-                    value="<?= htmlspecialchars($searchQuery) ?>"
-                    placeholder="Search by username..."
-                >
-                <button type="submit" class="btn btn-primary btn-sm px-4">Search</button>
-            </form>
-
-            <?php if ($searchQuery !== ''): ?>
-                <div class="mt-3">
-                    <h6 class="compose-title mb-2">Results</h6>
-
-                    <?php if (empty($searchResults)): ?>
-                        <p class="text-muted mb-0">No profiles found.</p>
-                    <?php else: ?>
-                        <?php foreach ($searchResults as $result): ?>
-                            <?php $resultProfilePicture = resolvePublicAssetPath($result['profile_picture'] ?? null); ?>
-                            <a class="profile-search-card" href="profile.php?user=<?= urlencode($result['username']) ?>">
-                                <?php if (!empty($resultProfilePicture)): ?>
-                                    <img
-                                        src="<?= htmlspecialchars($resultProfilePicture) ?>"
-                                        alt="<?= htmlspecialchars($result['username']) ?> profile picture"
-                                        class="profile-avatar"
-                                    >
-                                <?php else: ?>
-                                    <div class="profile-avatar profile-avatar-fallback">
-                                        <?= htmlspecialchars(getUserInitial($result['username'])) ?>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="flex-grow-1">
-                                    <div class="profile-search-username">@<?= htmlspecialchars($result['username']) ?></div>
-                                    <div class="profile-search-bio">
-                                        <?= htmlspecialchars(trim((string) ($result['bio'] ?? '')) ?: 'No bio yet.') ?>
-                                    </div>
-                                </div>
-                            </a>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <div class="feed-card mb-4 profile-card">
-            <div class="profile-summary d-flex align-items-start gap-3">
-                <?php if (!empty($profilePicture)): ?>
-                    <img
-                        src="<?= htmlspecialchars($profilePicture) ?>"
-                        alt="<?= htmlspecialchars($profile['username']) ?> profile picture"
-                        class="profile-avatar profile-avatar-lg"
-                    >
-                <?php else: ?>
-                    <div class="profile-avatar profile-avatar-lg profile-avatar-fallback">
-                        <?= htmlspecialchars(getUserInitial($profile['username'])) ?>
-                    </div>
-                <?php endif; ?>
-
-                <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
-                        <div>
-                            <h5 class="mb-1">@<?= htmlspecialchars($profile['username']) ?></h5>
-                            <p class="text-light mb-0">Member since <?= htmlspecialchars($profile['created_at']) ?></p>
-                        </div>
-                    </div>
-
-                    <p class="profile-bio mt-3 mb-0">
-                        <?= htmlspecialchars($profileBio !== '' ? $profileBio : 'No bio yet.') ?>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <?php if ($isOwnProfile): ?>
-            <div class="feed-card mb-3">
-                <h6 class="compose-title mb-3">Edit profile</h6>
-
-                <?php if ($profileError): ?>
-                    <div class="alert alert-danger py-2"><?= htmlspecialchars($profileError) ?></div>
-                <?php endif; ?>
-
-                <form method="post" action="profile.php?user=<?= urlencode($profile['username']) ?>" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="bio" class="form-label">Bio</label>
-                        <textarea
-                            class="form-control compose-textarea"
-                            id="bio"
-                            name="bio"
-                            rows="4"
-                            maxlength="160"
-                            placeholder="Tell people a little about yourself..."
-                        ><?= htmlspecialchars($_POST['bio'] ?? $profileBio) ?></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="profile_picture" class="form-label">Profile picture</label>
-                        <input
-                            class="form-control form-control-sm compose-file-input"
-                            type="file"
-                            id="profile_picture"
-                            name="profile_picture"
-                            accept="image/*"
-                        >
-                    </div>
-
-                    <div class="profile-edit-actions text-end">
-                        <button type="submit" class="btn btn-primary btn-sm px-4">Save profile</button>
-                    </div>
-                </form>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>

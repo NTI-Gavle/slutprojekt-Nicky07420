@@ -197,6 +197,8 @@ function createComment(
     string $content,
     ?int $parentCommentId = null
 ): bool
+
+// Create a new comment on a post, optionally as a reply to another comment.
 {
     ensurePostInteractionSchema($dbconn);
 
@@ -231,6 +233,7 @@ function getCommentById(PDO $dbconn, int $commentId): ?array
     return $comment !== false ? $comment : null;
 }
 
+// Update the content of a comment, only if it belongs to the given user.
 function updateCommentContent(PDO $dbconn, int $commentId, int $userId, string $content): bool
 {
     ensurePostInteractionSchema($dbconn);
