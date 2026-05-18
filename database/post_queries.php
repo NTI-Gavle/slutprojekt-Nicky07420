@@ -81,6 +81,33 @@ function getAllPosts(PDO $dbconn, int $currentUserId): array
     return $stmt->fetchAll();
 }
 
+function getPostsByUserId(PDO $dbconn, int $userId, int $currentUserId): array
+{
+    ensurePostInteractionSchema($dbconn);
+
+    $stmt = $dbconn->prepare(
+        'SELECT posts.*, users.username, users.profile_picture,
+                (SELECT COUNT(*) FROM post_likes WHERE post_id = posts.id) AS like_count,
+                (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count,
+                EXISTS(
+                    SELECT 1
+                    FROM post_likes
+                    WHERE post_id = posts.id AND user_id = :current_user_id
+                ) AS is_liked_by_current_user
+         FROM posts
+         JOIN users ON posts.user_id = users.id
+         WHERE posts.user_id = :user_id
+         ORDER BY posts.created_at DESC'
+    );
+
+    $stmt->execute([
+        ':user_id' => $userId,
+        ':current_user_id' => $currentUserId,
+    ]);
+
+    return $stmt->fetchAll();
+}
+
 function deleteOwnPost(PDO $dbconn, int $postId, int $userId): bool
 {
     $stmt = $dbconn->prepare(

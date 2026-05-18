@@ -263,3 +263,152 @@ $renderCommentThreads = function (
 $postProfilePicture = resolvePublicAssetPath($post['profile_picture'] ?? null);
 $postImagePath = resolvePublicAssetPath($post['image_path'] ?? null);
 ?>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-7">
+        <div class="feed-card mb-4" id="post-view-<?= (int) $post['id'] ?>">
+            <div class="post-card-body d-flex align-items-start gap-3 mb-2">
+                <?php if (!empty($postProfilePicture)): ?>
+                    <img
+                        src="<?= htmlspecialchars($postProfilePicture) ?>"
+                        alt="<?= htmlspecialchars($post['username']) ?> profile picture"
+                        class="profile-avatar post-avatar"
+                    >
+                <?php else: ?>
+                    <div class="profile-avatar post-avatar profile-avatar-fallback">
+                        <?= htmlspecialchars(getUserInitial($post['username'])) ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="flex-grow-1">
+                    <div class="post-header mb-2">
+                        <a class="post-username profile-link" href="profile.php?user=<?= urlencode($post['username']) ?>">
+                            @<?= htmlspecialchars($post['username']) ?>
+                        </a>
+                        <span class="post-meta">
+                            <span class="post-time"><?= htmlspecialchars($post['created_at']) ?></span>
+                            <?php if (!empty($post['edited_at'])): ?>
+                                <span class="edited-indicator">edited</span>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+
+                    <?php if ($post['content'] !== ''): ?>
+                        <p class="post-content mb-2"><?= htmlspecialchars($post['content']) ?></p>
+                    <?php endif; ?>
+
+                    <?php if (!empty($postImagePath)): ?>
+                        <img
+                            src="<?= htmlspecialchars($postImagePath) ?>"
+                            alt="Post image"
+                            class="post-image mb-2"
+                        >
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="post-engagement d-flex align-items-center gap-2 mb-2">
+                <form method="post" action="like_post.php" class="js-like-form">
+                    <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+                    <input type="hidden" name="return_to" value="post-view-<?= (int) $post['id'] ?>">
+                    <input
+                        type="hidden"
+                        class="js-like-action"
+                        name="action"
+                        value="<?= (int) $post['is_liked_by_current_user'] === 1 ? 'unlike' : 'like' ?>"
+                    >
+                    <button
+                        type="submit"
+                        class="btn btn-sm btn-heart <?= (int) $post['is_liked_by_current_user'] === 1 ? 'is-liked' : '' ?>"
+                        aria-label="<?= (int) $post['is_liked_by_current_user'] === 1 ? 'Unlike post' : 'Like post' ?>"
+                    >
+                        <?= (int) $post['is_liked_by_current_user'] === 1 ? '&#10084;' : '&#9825;' ?>
+                    </button>
+                </form>
+                <span class="like-counter" aria-label="Like count">
+                    <?= (int) $post['like_count'] ?> like<?= (int) $post['like_count'] === 1 ? '' : 's' ?>
+                </span>
+                <a href="#comments" class="comment-counter text-decoration-none" aria-label="Comment count">
+                    <?= renderCommentBubbleIcon() ?>
+                    <span class="comment-counter-text">
+                        <?= (int) $post['comment_count'] ?> comment<?= (int) $post['comment_count'] === 1 ? '' : 's' ?>
+                    </span>
+                </a>
+            </div>
+
+            <?php if ((int) $post['user_id'] === $currentUserId): ?>
+                <div class="post-owner-actions d-flex align-items-center gap-2">
+                    <button
+                        type="button"
+                        class="btn btn-secondary btn-sm"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#edit-post"
+                        aria-expanded="<?= $isPostEditOpen ? 'true' : 'false' ?>"
+                        aria-controls="edit-post"
+                    >
+                        Edit
+                    </button>
+                    <form method="post" action="delete_post.php" onsubmit="return confirm('Delete this post?')">
+                        <input type="hidden" name="post_id" value="<?= (int) $post['id'] ?>">
+                        <button type="submit" class="btn btn-delete btn-sm">Delete</button>
+                    </form>
+                </div>
+
+                <div class="collapse <?= $isPostEditOpen ? 'show' : '' ?>" id="edit-post">
+                    <form method="post" action="post.php?id=<?= (int) $postId ?>" class="post-edit-form">
+                        <input type="hidden" name="form_type" value="edit_post">
+
+                        <?php if ($postError): ?>
+                            <div class="alert alert-danger py-2"><?= htmlspecialchars($postError) ?></div>
+                        <?php endif; ?>
+
+                        <div class="mb-2">
+                            <textarea
+                                class="form-control compose-textarea"
+                                name="content"
+                                id="postContent"
+                                rows="3"
+                                maxlength="500"
+                            ><?= htmlspecialchars($postDraft) ?></textarea>
+                        </div>
+                        <div class="compose-actions d-flex justify-content-between align-items-center gap-2">
+                            <span class="char-counter" id="charCounter">500 characters left</span>
+                            <button type="submit" class="btn btn-primary btn-sm px-4">Save</button>
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="feed-card" id="comments">
+            <h5 class="compose-title">Comments</h5>
+
+            <?php if ($commentError): ?>
+                <div class="alert alert-danger py-2"><?= htmlspecialchars($commentError) ?></div>
+            <?php endif; ?>
+
+            <form method="post" action="post.php?id=<?= (int) $postId ?>#comments" class="mb-4">
+                <div class="mb-2">
+                    <textarea
+                        class="form-control compose-textarea"
+                        name="comment"
+                        rows="3"
+                        maxlength="500"
+                        placeholder="Write a comment..."
+                    ><?= $replyParentId === null && $editCommentId === null ? htmlspecialchars($commentDraft) : '' ?></textarea>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary btn-sm px-4">Comment</button>
+                </div>
+            </form>
+
+            <?php if (empty($commentsByParent[0])): ?>
+                <p class="text-muted mb-0">No comments yet.</p>
+            <?php else: ?>
+                <?php $renderCommentThreads($commentsByParent, 0, $postId, $currentUserId, $replyParentId, $editCommentId, $commentDraft); ?>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
