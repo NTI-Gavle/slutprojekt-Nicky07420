@@ -1,15 +1,9 @@
 <?php
-require_once __DIR__ . '/../config/env.php';
 
-// Load the .env file
-$env = loadEnv(__DIR__ . '/../.env');
-
-
-$dbname = 'Your_DB_Name';
-$hostname = 'localhost';
-
-$DB_USER = $env['DB_USER'] ?? 'root';
-$DB_PASSWORD = $env['DB_PASS']?? 'root';
+$dbname      = 'posting_website';
+$hostname    = 'localhost';
+$DB_USER     = 'root';
+$DB_PASSWORD = 'root';
 
 try {
     $dbconn = new PDO(
@@ -17,9 +11,9 @@ try {
         $DB_USER,
         $DB_PASSWORD
     );
-    echo 'Connected to database'; // Remove after it works
     $dbconn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-}
-catch(PDOException $e){
-    echo 'Connection failed: ' . $e->getMessage();
+    $dbconn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log('Database connection failed: ' . $e->getMessage());
+    die('Could not connect to the database. Skill issue.');
 }
